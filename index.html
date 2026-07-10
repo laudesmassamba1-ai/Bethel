@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bethel Kitchen</title>
+    <meta name="description" content="Bethel Kitchen — Commandez vos burgers, pizzas, tacos, desserts et boissons en ligne." />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#19B000" />
+    <meta property="og:title" content="Bethel Kitchen - Restaurant en ligne" />
+    <meta property="og:description" content="Commandez vos plats préférés en ligne. Livraison rapide." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/dist/assets/og-image.png" />
+    <link rel="canonical" href="https://bethelkitchen.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      html, body { height: 100%; margin: 0; }
+      #root { height: 100%; }
+      #loading {
+        display: flex; align-items: center; justify-content: center;
+        height: 100vh; background: #F5F1EA;
+        font-family: 'Open Sans', sans-serif; color: #000000;
+      }
+      #loading::after {
+        content: '';
+        width: 40px; height: 40px; margin-left: 12px;
+        border-radius: 50%; border: 4px solid #19B000;
+        border-top-color: transparent;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div id="loading">Chargement…</div></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
