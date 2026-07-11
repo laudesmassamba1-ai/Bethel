@@ -71,7 +71,7 @@ export function LoginPage() {
                 letterSpacing: "0.06em",
               }}
             >
-              GRILL
+              KITCHEN
             </span>
           </div>
           <p

@@ -19,20 +19,12 @@ export function Footer({ onCategoryClick }: Props) {
 
   return (
     <footer style={{ background: "#19B000", color: "#FFFFFF" }}>
-      <div
-        className="relative"
-        style={{
-          height: 6,
-          background: "linear-gradient(90deg, #19B000, #0D8A00, #19B000)",
-        }}
-      />
-
       <div className="max-w-7xl mx-auto px-4 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-1">
             <div className="mb-4">
               <span
-                className="block mb-1"
+                className="block"
                 style={{
                   fontFamily: "Montserrat, sans-serif",
                   fontWeight: 900,
@@ -55,12 +47,12 @@ export function Footer({ onCategoryClick }: Props) {
                   marginTop: "-4px",
                 }}
               >
-                GRILL
+                KITCHEN
               </span>
             </div>
             <p
               className="text-sm leading-relaxed mb-5"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.9)" }}
+              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.85)" }}
             >
               Des grillades premium qui eveillent vos sens. Fait avec passion, servi avec le sourire.
             </p>
@@ -175,7 +167,7 @@ export function Footer({ onCategoryClick }: Props) {
               }}
               whileHover={{ borderColor: "rgba(255,255,255,0.5)" }}
             >
-              <Shield size={14} /> Administration
+              <Shield size={14} /> Administrateur
             </motion.a>
           </div>
         </div>
@@ -189,7 +181,7 @@ export function Footer({ onCategoryClick }: Props) {
         }}
       >
         <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-          &copy; 2026 BETHEL GRILL &mdash; Fait avec soin et generosite
+          &copy; 2026 BETHEL KITCHEN &mdash; Fait avec soin et generosite
         </p>
       </div>
 

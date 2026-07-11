@@ -273,7 +273,7 @@ export function AdminPage() {
               BETHEL
             </span>
             <span style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#000000", letterSpacing: "0.04em" }}>
-              GRILL
+              KITCHEN
             </span>
           </div>
           <p className="text-xs truncate" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>

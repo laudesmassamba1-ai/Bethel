@@ -1,4 +1,4 @@
-import { useRef, useCallback, type ReactNode } from "react";
+import { useRef, useCallback, useState, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 
 interface Props {
@@ -6,64 +6,81 @@ interface Props {
   className?: string;
   onClick?: () => void;
   delay?: number;
+  span?: string;
 }
 
-export function BentoGlassCard({ children, className = "", onClick, delay = 0 }: Props) {
+export function BentoGlassCard({ children, className = "", onClick, delay = 0, span }: Props) {
   const ref = useRef<HTMLDivElement>(null!);
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
   const tiltX = useSpring(rotateX, { stiffness: 300, damping: 30 });
   const tiltY = useSpring(rotateY, { stiffness: 300, damping: 30 });
+  const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
+  const [glowOpacity, setGlowOpacity] = useState(0);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!onClick) return;
-      const rect = ref.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      rotateX.set((y - 0.5) * -6);
-      rotateY.set((x - 0.5) * 6);
-    },
-    [onClick]
-  );
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setGlowPos({ x, y });
+    setGlowOpacity(1);
+    const nx = (e.clientX - rect.left) / rect.width;
+    const ny = (e.clientY - rect.top) / rect.height;
+    rotateX.set((ny - 0.5) * -8);
+    rotateY.set((nx - 0.5) * 8);
+  }, [rotateX, rotateY]);
 
   const handleMouseLeave = useCallback(() => {
     rotateX.set(0);
     rotateY.set(0);
-  }, []);
+    setGlowOpacity(0);
+  }, [rotateX, rotateY]);
 
   return (
     <motion.div
       ref={ref}
-      className={`relative ${className}`}
+      className={`relative overflow-hidden ${span || ""} ${className}`}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, delay, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
       style={{
-        background: "#FFFFFF",
-        border: "1px solid rgba(0,0,0,0.08)",
+        background: "rgba(20, 20, 20, 0.6)",
+        border: "1px solid rgba(25,176,0,0.1)",
+        borderRadius: 16,
+        backdropFilter: "blur(24px) saturate(180%)",
+        WebkitBackdropFilter: "blur(24px) saturate(180%)",
         cursor: onClick ? "pointer" : undefined,
-        boxShadow: "6px 6px 0 rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
         rotateX: tiltX,
         rotateY: tiltY,
         perspective: 800,
+        willChange: "transform, opacity",
       }}
       whileHover={
         onClick
           ? {
-              y: -4,
-              boxShadow: "10px 10px 0 rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.1)",
-              transition: { duration: 0.25, ease: "easeOut" },
+              y: -6,
+              boxShadow: "0 16px 48px rgba(25,176,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
+              transition: { duration: 0.3, ease: "easeOut" },
             }
           : undefined
       }
-      whileTap={onClick ? { scale: 0.97 } : undefined}
+      whileTap={onClick ? { scale: 0.98 } : undefined}
     >
-      {children}
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          background: `radial-gradient(circle 200px at ${glowPos.x}% ${glowPos.y}%, rgba(25,176,0,0.18), transparent 70%)`,
+          opacity: glowOpacity,
+          transition: "opacity 0.3s ease",
+        }}
+      />
+      <div className="relative z-0">{children}</div>
     </motion.div>
   );
 }

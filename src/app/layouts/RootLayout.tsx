@@ -26,7 +26,7 @@ export function RootLayout({ children, hideNav, hideFooter }: Props) {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ fontFamily: "Nunito, sans-serif", background: "#2C1810" }}>
+    <div className="min-h-screen" style={{ fontFamily: "Montserrat, sans-serif", background: "#000000" }}>
       <ToasterProvider />
 
       {!hideNav && (
@@ -62,18 +62,15 @@ export function RootLayout({ children, hideNav, hideFooter }: Props) {
 
       <style>{`
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #3E2723; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #19B000; border-radius: 3px; }
-        * { scrollbar-width: thin; scrollbar-color: #19B000 #3E2723; }
+        * { scrollbar-width: thin; scrollbar-color: #19B000 #0a0a0a; }
         *:focus-visible { outline: 2px solid #19B000; outline-offset: 2px; }
         html { scroll-behavior: smooth; }
         ::selection { background: rgba(25,176,0,0.3); color: #FFFFFF; }
 
         body {
-          background: #2C1810;
-          background-image:
-            radial-gradient(ellipse at 50% 0%, rgba(139,90,43,0.15) 0%, transparent 60%),
-            repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 3px);
+          background: #000000;
         }
       `}</style>
     </div>

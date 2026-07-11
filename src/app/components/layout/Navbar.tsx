@@ -18,10 +18,10 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
     <header
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        background: scrolled ? "rgba(0,0,0,0.85)" : "rgba(0,0,0,0.2)",
-        backdropFilter: "blur(60px) saturate(200%)",
-        WebkitBackdropFilter: "blur(60px) saturate(200%)",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
+        background: scrolled ? "rgba(0,0,0,0.85)" : "transparent",
+        backdropFilter: scrolled ? "blur(60px) saturate(200%)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(60px) saturate(200%)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(25,176,0,0.08)" : "1px solid transparent",
         transition: "all 0.5s ease",
       }}
     >
@@ -52,7 +52,7 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
               letterSpacing: "0.04em",
             }}
           >
-            GRILL
+            KITCHEN
           </span>
         </motion.div>
 
@@ -84,7 +84,7 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
               textDecoration: "none",
               fontFamily: "Montserrat, sans-serif",
             }}
-            whileHover={{ color: "#FFFFFF", borderColor: "rgba(255,255,255,0.3)" }}
+            whileHover={{ color: "#19B000", borderColor: "rgba(25,176,0,0.5)" }}
           >
             <Shield size={13} />
             Admin
@@ -146,7 +146,8 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             style={{
               borderTop: "1px solid rgba(255,255,255,0.06)",
               overflow: "hidden",
-              background: "rgba(0,0,0,0.9)",
+              background: "rgba(0,0,0,0.95)",
+              backdropFilter: "blur(40px)",
             }}
           >
             <div className="px-4 py-3 flex flex-col gap-2">
@@ -174,7 +175,7 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
                   textDecoration: "none",
                 }}
               >
-                <Shield size={14} /> Administration
+                <Shield size={14} /> Administrateur
               </a>
             </div>
           </motion.div>
