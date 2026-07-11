@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { CartDrawer } from "../components/cart/CartDrawer";
@@ -8,33 +8,38 @@ import { ToasterProvider } from "../components/shared/ToasterProvider";
 import { useScrollPosition } from "../hooks/useScrollPosition";
 import { useCart } from "../context/CartContext";
 
-
 interface Props {
   children: ReactNode;
-  activeCategory: string;
-  onCategoryChange: (cat: string) => void;
+  hideNav?: boolean;
+  hideFooter?: boolean;
 }
 
-export function RootLayout({ children, activeCategory, onCategoryChange }: Props) {
+export function RootLayout({ children, hideNav, hideFooter }: Props) {
   const [cartOpen, setCartOpen] = useState(false);
   const scrolled = useScrollPosition(40);
   const { cart, cartCount, cartTotal, addById, removeById, clearCart } = useCart();
 
+  useEffect(() => {
+    const handler = () => setCartOpen((o) => !o);
+    window.addEventListener("open-cart", handler);
+    return () => window.removeEventListener("open-cart", handler);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background" style={{ fontFamily: "Nunito, sans-serif" }}>
+    <div className="min-h-screen" style={{ fontFamily: "Nunito, sans-serif", background: "#2C1810" }}>
       <ToasterProvider />
 
-      <Navbar
-        scrolled={scrolled}
-        cartCount={cartCount}
-        activeCategory={activeCategory}
-        onCategoryChange={onCategoryChange}
-        onCartOpen={() => setCartOpen(true)}
-      />
+      {!hideNav && (
+        <Navbar
+          scrolled={scrolled}
+          cartCount={cartCount}
+          onCartOpen={() => setCartOpen(true)}
+        />
+      )}
 
       {children}
 
-      <Footer onCategoryClick={onCategoryChange} />
+      {!hideFooter && <Footer onCategoryClick={() => {}} />}
 
       <CartDrawer
         open={cartOpen}
@@ -57,11 +62,19 @@ export function RootLayout({ children, activeCategory, onCategoryChange }: Props
 
       <style>{`
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #F4F1EA; }
-        ::-webkit-scrollbar-thumb { background: #9B1B30; border: 1px solid #1D1D1D; }
-        * { scrollbar-width: thin; scrollbar-color: #9B1B30 #F4F1EA; }
-        *:focus-visible { outline: 3px solid #D4AF37; outline-offset: 2px; }
+        ::-webkit-scrollbar-track { background: #3E2723; }
+        ::-webkit-scrollbar-thumb { background: #19B000; border-radius: 3px; }
+        * { scrollbar-width: thin; scrollbar-color: #19B000 #3E2723; }
+        *:focus-visible { outline: 2px solid #19B000; outline-offset: 2px; }
         html { scroll-behavior: smooth; }
+        ::selection { background: rgba(25,176,0,0.3); color: #FFFFFF; }
+
+        body {
+          background: #2C1810;
+          background-image:
+            radial-gradient(ellipse at 50% 0%, rgba(139,90,43,0.15) 0%, transparent 60%),
+            repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 3px);
+        }
       `}</style>
     </div>
   );

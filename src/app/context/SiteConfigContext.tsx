@@ -3,7 +3,7 @@ import type { SiteConfigDTO } from "../utils/api";
 
 const DEFAULTS: SiteConfigDTO = {
   brand_name: "Bethel",
-  brand_accent: "Kitchen",
+  brand_accent: "Grill",
   hero_subtitle: "Cuisine authentique & ambiance cel-shading",
   hero_title: "Saveurs puissantes, design audacieux.",
   hero_copy: "Découvrez notre menu premium, commandez en direct et recevez une expérience culinaire visuelle et gourmande.",

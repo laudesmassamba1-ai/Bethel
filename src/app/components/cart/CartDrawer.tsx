@@ -30,7 +30,7 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
         <>
           <motion.div
             className="fixed inset-0 z-40"
-            style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+            style={{ background: "rgba(0,0,0,0.5)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -42,17 +42,16 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
               width: "min(420px, 100vw)",
               background: "#FFFFFF",
               borderLeft: "1px solid rgba(0,0,0,0.08)",
-              boxShadow: "-8px 0 32px rgba(0,0,0,0.12)",
+              boxShadow: "-12px 0 0 rgba(0,0,0,0.08), -8px 0 48px rgba(0,0,0,0.1)",
             }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
           >
-            {/* Header */}
             <div
               className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4"
-              style={{ borderBottom: "1px solid rgba(0,0,0,0.08)", background: "#F5F1EA" }}
+              style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", background: "transparent" }}
             >
               <div className="flex items-center gap-2" style={{ color: "#000000" }}>
                 <ShoppingCart size={20} strokeWidth={2} />
@@ -70,7 +69,6 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                     className="w-8 h-8 flex items-center justify-center"
                     style={{
                       border: "1px solid rgba(0,0,0,0.12)",
-                      borderRadius: "0.375rem",
                       cursor: "pointer",
                       background: "transparent",
                       color: "#6B6357",
@@ -85,7 +83,6 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                   className="w-8 h-8 flex items-center justify-center"
                   style={{
                     border: "1px solid rgba(0,0,0,0.12)",
-                    borderRadius: "0.375rem",
                     cursor: "pointer",
                     background: "transparent",
                     color: "#6B6357",
@@ -97,7 +94,6 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
               </div>
             </div>
 
-            {/* Items */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-4 flex flex-col gap-2 sm:gap-3">
               {cart.length === 0 ? (
                 <motion.div
@@ -131,16 +127,15 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                       transition={{ type: "spring", damping: 25, stiffness: 250 }}
                       className="flex gap-2 sm:gap-3 p-2 sm:p-3"
                       style={{
-                        background: "rgba(255,255,255,0.8)",
+                        background: "#F9F9F9",
                         border: "1px solid rgba(0,0,0,0.06)",
-                        borderRadius: "0.5rem",
                       }}
                     >
                       <ImageWithFallback
                         src={item.image}
                         alt={item.name}
                         className="w-12 sm:w-16 h-12 sm:h-16 object-cover flex-shrink-0"
-                        style={{ borderRadius: "0.375rem" }}
+                        style={{}}
                       />
                       <div className="flex-1 min-w-0">
                         <p
@@ -162,7 +157,6 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                           className="w-7 h-7 flex items-center justify-center"
                           style={{
                             border: "1px solid rgba(0,0,0,0.1)",
-                            borderRadius: "0.375rem",
                             background: "#F5F1EA",
                             cursor: "pointer",
                             color: "#000000",
@@ -185,7 +179,6 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                           className="w-7 h-7 flex items-center justify-center"
                           style={{
                             border: "1px solid rgba(25,176,0,0.3)",
-                            borderRadius: "0.375rem",
                             background: "#19B000",
                             cursor: "pointer",
                             color: "#FFFFFF",
@@ -201,11 +194,10 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
               )}
             </div>
 
-            {/* Footer */}
             {cart.length > 0 && (
               <motion.div
                 className="p-3 sm:p-4"
-                style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "#F5F1EA" }}
+                style={{ borderTop: "1px solid rgba(0,0,0,0.06)", background: "rgba(245,241,234,0.5)" }}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
               >
@@ -230,12 +222,11 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                   onClick={handleOrderClick}
                   className="flex items-center justify-center gap-2 w-full py-3.5 text-white font-semibold text-base"
                   style={{
-                    background: "#19B000",
-                    borderRadius: "0.5rem",
+                    background: "linear-gradient(135deg, #19B000, #0D8A00)",
                     border: "none",
                     fontFamily: "Montserrat, sans-serif",
                     cursor: "pointer",
-                    boxShadow: "0 8px 32px rgba(25,176,0,0.35)",
+                    boxShadow: "4px 4px 0 rgba(0,0,0,0.2), 0 8px 24px rgba(25,176,0,0.25)",
                   }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

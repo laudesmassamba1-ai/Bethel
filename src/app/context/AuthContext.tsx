@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Token invalide");
+        if (!res.ok) throw new Error("Session expiree");
         return res.json();
       })
       .then((data) => setUser(data.user))
@@ -44,17 +44,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   const login = useCallback(async (email: string, password: string, remember?: boolean) => {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password, remember: remember ?? false }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password, remember: remember ?? false }),
+      });
+    } catch {
+      throw new Error("Impossible de contacter le serveur");
+    }
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: "Erreur de connexion" }));
       throw new Error(err.message || "Identifiants invalides");
     }
     const data = await res.json();
+    if (!data.token) throw new Error("Reponse invalide du serveur");
     localStorage.setItem(AUTH_TOKEN_KEY, data.token);
     setToken(data.token);
     setUser(data.user);
@@ -80,6 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth doit être utilisé dans AuthProvider");
+  if (!ctx) throw new Error("useAuth doit etre utilise dans AuthProvider");
   return ctx;
 }

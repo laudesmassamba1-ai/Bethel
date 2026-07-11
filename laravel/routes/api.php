@@ -16,7 +16,6 @@ Route::get('/plats', [PlatController::class, 'index']);
 Route::get('/plats/{plat}', [PlatController::class, 'show']);
 Route::get('/menus', [MenuController::class, 'index']);
 Route::get('/config', [SiteConfigController::class, 'index']);
-Route::get('/stats', [StatsController::class, 'index']);
 Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:5,1');
 Route::get('/customer/verify', [CustomerController::class, 'verify']);
 
@@ -29,6 +28,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware([
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/stats', [StatsController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware([
         EncryptCookies::class,
         AddQueuedCookiesToResponse::class,

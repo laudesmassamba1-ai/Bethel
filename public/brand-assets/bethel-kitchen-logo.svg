@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" fill="none">
   <!-- BETHEL in Green -->
   <text x="0" y="58" font-family="Montserrat, Arial, sans-serif" font-weight="900" font-size="54" letter-spacing="0.12em" fill="#19B000">BETHEL</text>
-  <!-- KITCHEN in Black -->
-  <text x="232" y="58" font-family="Montserrat, Arial, sans-serif" font-weight="700" font-size="54" letter-spacing="0.08em" fill="#000000">KITCHEN</text>
-  <!-- Thin gold accent line -->
+  <!-- GRILL in Black -->
+  <text x="232" y="58" font-family="Montserrat, Arial, sans-serif" font-weight="700" font-size="54" letter-spacing="0.08em" fill="#000000">GRILL</text>
+  <!-- Thin accent line -->
   <line x1="0" y1="70" x2="400" y2="70" stroke="#19B000" stroke-width="1.5" opacity="0.6"/>
   <!-- Tagline -->
-  <text x="200" y="78" font-family="Open Sans, Arial, sans-serif" font-weight="400" font-size="10" letter-spacing="0.35em" fill="#000000" text-anchor="middle" opacity="0.5">CUISINE PREMIUM</text>
+  <text x="200" y="78" font-family="Open Sans, Arial, sans-serif" font-weight="400" font-size="10" letter-spacing="0.35em" fill="#000000" text-anchor="middle" opacity="0.5">GRILLADES PREMIUM</text>
 </svg>

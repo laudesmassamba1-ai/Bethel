@@ -16,28 +16,48 @@ export function FloatingCart({ visible, cartOpen, itemCount, total, onOpen }: Pr
       {visible && !cartOpen && (
         <motion.button
           onClick={onOpen}
-          className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 font-black text-xs sm:text-sm"
+          className="fixed bottom-5 left-5 z-30 flex items-center gap-2 px-4 py-3 text-xs font-bold"
           style={{
-            background: "#D4AF37",
-            border: "3px solid #1D1D1D",
-            boxShadow: "4px 4px 0 #1D1D1D",
-            fontFamily: "Nunito, sans-serif",
+            background: "linear-gradient(135deg, #19B000, #0D8A00)",
+            border: "none",
+            boxShadow: "4px 4px 0 rgba(0,0,0,0.25), 0 8px 24px rgba(25,176,0,0.15)",
             cursor: "pointer",
-            maxWidth: "calc(100vw - 2rem)",
+            fontFamily: "Montserrat, sans-serif",
+            color: "#FFFFFF",
+            letterSpacing: "0.03em",
           }}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          whileHover={{ scale: 1.04 }}
+          whileHover={{ scale: 1.05, y: -2, boxShadow: "6px 6px 0 rgba(0,0,0,0.25), 0 12px 32px rgba(25,176,0,0.2)" }}
           whileTap={{ scale: 0.95 }}
         >
-          <ShoppingCart size={16} className="sm:size-[17px]" />
-          <span className="whitespace-nowrap overflow-hidden text-ellipsis">
-            <span className="hidden sm:inline">{itemCount} article{itemCount > 1 ? "s" : ""}</span>
-            <span className="sm:hidden">{itemCount} art.</span>
-            <span className="mx-1">•</span>
-            <span style={{ color: "#9B1B30" }}>{formatPrice(total)}</span>
+          <span className="relative">
+            <ShoppingCart size={16} strokeWidth={2.5} />
+            <span
+              style={{
+                position: "absolute",
+                top: -6,
+                right: -8,
+                background: "#E53E30",
+                color: "#fff",
+                borderRadius: "50%",
+                width: 16,
+                height: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 9,
+                fontWeight: 700,
+                lineHeight: 1,
+              }}
+            >
+              {itemCount}
+            </span>
           </span>
+          <span className="hidden sm:inline">Panier</span>
+          <span className="mx-0.5 opacity-40">·</span>
+          <span style={{ color: "rgba(255,255,255,0.7)" }}>{formatPrice(total)}</span>
         </motion.button>
       )}
     </AnimatePresence>

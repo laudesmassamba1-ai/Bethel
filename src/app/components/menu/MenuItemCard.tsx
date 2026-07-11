@@ -33,29 +33,29 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
     <BentoGlassCard
       onClick={() => onDetail(item)}
       delay={index * 0.06}
-      className="flex flex-col"
+      className="flex flex-col group/poster"
     >
       {/* Image */}
       <div className="relative overflow-hidden" style={{ height: "clamp(160px, 24vw, 220px)" }}>
         <ImageWithFallback
           src={item.image}
           alt={item.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover/poster:scale-105"
           style={{
             filter: "saturate(1.1) contrast(1.04)",
             scale: imgReady ? 1 : 1.04,
             opacity: imgReady ? 1 : 0.7,
-            transition: "scale 0.5s ease, opacity 0.4s ease",
+            transition: "scale 0.5s ease, opacity 0.4s ease, transform 0.7s ease",
           }}
           onLoad={() => setImgReady(true)}
         />
 
-        {/* Subtle gradient overlay */}
+        {/* Poster-style gradient overlay */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%)",
+            background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%)",
             pointerEvents: "none",
           }}
         />
@@ -65,11 +65,10 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
           <motion.div
             className="absolute top-3 left-3 px-2.5 py-1 text-xs font-bold tracking-wide"
             style={{
-              background: item.is_promotion ? "#19B000" : "rgba(0,0,0,0.7)",
+              background: item.is_promotion ? "#19B000" : "#000000",
               color: "#FFFFFF",
-              borderRadius: "0.375rem",
               fontFamily: "Montserrat, sans-serif",
-              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.15)",
             }}
             initial={{ scale: 0, rotate: -12 }}
             animate={{ scale: 1, rotate: 0 }}
@@ -89,6 +88,8 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
             style={{
               background: "#DC2626",
               borderRadius: "50%",
+              border: "1px solid rgba(255,255,255,0.3)",
+              boxShadow: "0 2px 8px rgba(220,38,38,0.4)",
             }}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -101,10 +102,10 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-4 gap-2">
-        {/* Category tag */}
+        {/* Category tag - poster style */}
         <span
-          className="text-xs font-semibold tracking-wider uppercase"
-          style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}
+          className="text-[10px] font-semibold tracking-[0.2em] uppercase"
+          style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000", opacity: 0.7 }}
         >
           {item.category}
         </span>
@@ -117,7 +118,7 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
         </h3>
 
         <p
-          className="text-sm leading-snug flex-1"
+          className="text-sm leading-snug flex-1 line-clamp-2"
           style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}
         >
           {item.description}
@@ -134,7 +135,7 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
         </div>
 
         {/* Price + Add button */}
-        <div className="flex items-center justify-between mt-1 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+        <div className="flex items-center justify-between mt-1 pt-2" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
           <div className="flex items-center gap-2">
             <span
               className="text-xl font-bold"
@@ -162,11 +163,11 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white"
             style={{
               background: justAdded ? "#000000" : "#19B000",
-              borderRadius: "0.375rem",
               border: "none",
               cursor: "pointer",
               fontFamily: "Montserrat, sans-serif",
-              transition: "background 0.2s ease",
+              transition: "background 0.2s ease, box-shadow 0.2s ease",
+              boxShadow: justAdded ? "none" : "3px 3px 0 rgba(0,0,0,0.15)",
             }}
           >
             {justAdded ? (

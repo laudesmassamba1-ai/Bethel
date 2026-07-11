@@ -37,8 +37,8 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="absolute inset-0"
-          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+              className="absolute inset-0"
+              style={{ background: "rgba(0,0,0,0.6)" }}
           onClick={onClose}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -48,12 +48,10 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
         <motion.div
           className="relative w-full max-w-lg flex flex-col overflow-hidden"
           style={{
-            background: "rgba(255,255,255,0.95)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(25,176,0,0.2)",
-            borderRadius: "1rem",
+            background: "#FFFFFF",
+            border: "1px solid rgba(0,0,0,0.1)",
             maxHeight: "90vh",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.25)",
+            boxShadow: "12px 12px 0 rgba(0,0,0,0.12), 0 24px 80px rgba(0,0,0,0.15)",
           }}
           initial={{ opacity: 0, scale: 0.92, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -63,14 +61,12 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
           <button
             onClick={onClose}
             className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center"
-            style={{
-              background: "rgba(0,0,0,0.5)",
-              border: "none",
-              borderRadius: "50%",
-              color: "#FFFFFF",
-              cursor: "pointer",
-              backdropFilter: "blur(8px)",
-            }}
+              style={{
+                background: "#000000",
+                border: "none",
+                color: "#FFFFFF",
+                cursor: "pointer",
+              }}
             aria-label="Fermer"
           >
             <X size={16} />
@@ -96,13 +92,11 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
             {item.badge && (
               <motion.div
                 className="absolute top-3 left-3 px-3 py-1 text-xs font-bold tracking-wide flex items-center gap-1"
-                style={{
-                  background: item.is_promotion ? "#19B000" : "rgba(0,0,0,0.6)",
-                  color: "#FFFFFF",
-                  borderRadius: "0.375rem",
-                  fontFamily: "Montserrat, sans-serif",
-                  backdropFilter: "blur(8px)",
-                }}
+              style={{
+                background: item.is_promotion ? "#19B000" : "#000000",
+                color: "#FFFFFF",
+                fontFamily: "Montserrat, sans-serif",
+              }}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
               >
@@ -169,9 +163,8 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
             <div
               className="p-3 text-sm leading-relaxed"
               style={{
-                background: "rgba(25,176,0,0.06)",
-                border: "1px solid rgba(25,176,0,0.15)",
-                borderRadius: "0.5rem",
+                background: "rgba(25,176,0,0.04)",
+                border: "1px solid rgba(25,176,0,0.12)",
                 fontFamily: "Open Sans, sans-serif",
                 color: "#333333",
               }}
@@ -185,13 +178,12 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
               whileHover={{ scale: 1.02 }}
               className="flex items-center justify-center gap-2 py-3 text-sm font-semibold text-white"
               style={{
-                background: justAdded ? "#000000" : "#19B000",
-                borderRadius: "0.5rem",
+                background: justAdded ? "#000000" : "linear-gradient(135deg, #19B000, #0D8A00)",
                 border: "none",
                 cursor: "pointer",
                 fontFamily: "Montserrat, sans-serif",
-                boxShadow: justAdded ? "none" : "0 8px 32px rgba(25,176,0,0.35)",
-                transition: "background 0.2s ease",
+                boxShadow: justAdded ? "none" : "4px 4px 0 rgba(0,0,0,0.2), 0 8px 24px rgba(25,176,0,0.25)",
+                transition: "background 0.2s ease, box-shadow 0.2s ease",
               }}
             >
               {justAdded ? (

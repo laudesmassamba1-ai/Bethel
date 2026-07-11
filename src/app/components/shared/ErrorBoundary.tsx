@@ -38,12 +38,11 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={() => window.location.reload()}
               className="px-5 py-2.5 text-sm font-semibold text-white"
               style={{
-                background: "#19B000",
+                background: "linear-gradient(135deg, #19B000, #0D8A00)",
                 border: "none",
-                borderRadius: "0.5rem",
                 cursor: "pointer",
                 fontFamily: "Montserrat, sans-serif",
-                boxShadow: "0 4px 16px rgba(25,176,0,0.3)",
+                boxShadow: "3px 3px 0 rgba(0,0,0,0.15)",
               }}
             >
               Recharger la page

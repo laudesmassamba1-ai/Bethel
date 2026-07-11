@@ -2,8 +2,8 @@ import type { MenuItem } from "./constants";
 
 const API_BASE = "/api";
 
-async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`);
+async function fetchJson<T>(url: string, signal?: AbortSignal, headers?: Record<string, string>): Promise<T> {
+  const res = await fetch(`${API_BASE}${url}`, { signal, headers });
   if (!res.ok) throw new Error(`Erreur API ${res.status}: ${res.statusText}`);
   return res.json();
 }
@@ -17,7 +17,6 @@ export interface PlatDTO {
   category: string;
   image: string;
   badge: string | null;
-  is_bestseller: boolean;
   is_promotion: boolean;
   promotion_prix: number | null;
   spicy: boolean;
@@ -36,7 +35,6 @@ function toMenuItem(p: PlatDTO): MenuItem {
     category: p.category as MenuItem["category"],
     image: p.image,
     badge: p.badge ?? undefined,
-    is_bestseller: p.is_bestseller,
     is_promotion: p.is_promotion,
     promotion_prix: p.promotion_prix,
     spicy: p.spicy,
@@ -46,8 +44,8 @@ function toMenuItem(p: PlatDTO): MenuItem {
   };
 }
 
-export async function fetchPlats(): Promise<MenuItem[]> {
-  const json = await fetchJson<{ data: PlatDTO[] }>("/plats");
+export async function fetchPlats(signal?: AbortSignal): Promise<MenuItem[]> {
+  const json = await fetchJson<{ data: PlatDTO[] }>("/plats", signal);
   return json.data.map(toMenuItem);
 }
 
@@ -56,11 +54,6 @@ export interface MenuDTO {
   nom: string;
   description: string | null;
   is_active: boolean;
-}
-
-export async function fetchMenus(): Promise<MenuDTO[]> {
-  const json = await fetchJson<{ data: MenuDTO[] }>("/menus");
-  return json.data;
 }
 
 export interface SiteConfigDTO {
@@ -81,11 +74,6 @@ export interface SiteConfigDTO {
   cart_checkout_label: string;
 }
 
-export async function fetchConfig(): Promise<SiteConfigDTO> {
-  const json = await fetchJson<{ data: SiteConfigDTO }>("/config");
-  return json.data;
-}
-
 export interface StatsDTO {
   total_orders: number;
   total_revenue: number;
@@ -101,8 +89,9 @@ export interface StatsDTO {
   category_breakdown: { category: string; count: number }[];
 }
 
-export async function fetchStats(): Promise<StatsDTO> {
-  const json = await fetchJson<{ data: StatsDTO }>("/stats");
+export async function fetchStats(token?: string): Promise<StatsDTO> {
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  const json = await fetchJson<{ data: StatsDTO }>("/stats", undefined, headers);
   return json.data;
 }
 

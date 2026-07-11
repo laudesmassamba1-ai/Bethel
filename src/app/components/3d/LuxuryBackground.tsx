@@ -1,5 +1,3 @@
-"use client";
-
 import { ShaderGradientCanvas, ShaderGradient } from "@shadergradient/react";
 
 export function LuxuryBackground() {

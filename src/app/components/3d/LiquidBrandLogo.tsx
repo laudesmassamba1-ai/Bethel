@@ -1,5 +1,3 @@
-"use client";
-
 import { LiquidMetal } from "@paper-design/shaders-react";
 
 interface Props {
@@ -13,7 +11,7 @@ export function LiquidBrandLogo({ className }: Props) {
       style={{
         width: "100%",
         height: "100%",
-        borderRadius: "0.5rem",
+        boxShadow: "4px 4px 0 rgba(0,0,0,0.15)",
       }}
       colorBack="#000000"
       colorTint="#19B000"

@@ -1,5 +1,3 @@
-export type Category = "Tous" | string;
-
 export interface MenuItem {
   id: number;
   name: string;
@@ -9,7 +7,6 @@ export interface MenuItem {
   category: string;
   image: string;
   badge?: string;
-  is_bestseller?: boolean;
   is_promotion?: boolean;
   promotion_prix?: number | null;
   spicy?: boolean;
@@ -51,4 +48,4 @@ export const buildWhatsAppUrl = (message: string, whatsappNumber?: string) =>
   `https://wa.me/${whatsappNumber ?? "237690788315"}?text=${encodeURIComponent(message)}`;
 
 export const buildOrderMessage = (items: CartItem[], total: number, restaurantName?: string) =>
-  `Bonjour ${restaurantName ?? "Bethel Kitchen"} ! Je souhaite passer la commande suivante :\n\n${items.map((i) => `- ${i.name} x${i.qty}  (${formatPrice(getDisplayPrice(i) * i.qty)})`).join("\n")}\n\nTotal : ${formatPrice(total)}\n\nMerci !`;
+  `Bonjour ${restaurantName ?? "Bethel Grill"} ! Je souhaite passer la commande suivante :\n\n${items.map((i) => `- ${i.name} x${i.qty}  (${formatPrice(getDisplayPrice(i) * i.qty)})`).join("\n")}\n\nTotal : ${formatPrice(total)}\n\nMerci !`;

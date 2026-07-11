@@ -72,6 +72,16 @@ class CheckoutController extends Controller
             ]);
         }
 
+        if ($customer) {
+            $customer->increment('order_count');
+            $customer->increment('total_spent', $validated['total']);
+            $customer->last_order_at = now();
+            if (!$customer->first_order_at) {
+                $customer->first_order_at = now();
+            }
+            $customer->save();
+        }
+
         return response()->json([
             'success' => true,
             'order_id' => $order->id,

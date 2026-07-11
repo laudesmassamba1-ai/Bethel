@@ -15,7 +15,7 @@ export function RememberedCustomerBanner({ customer, onDismiss, onClear }: Remem
       style={{
         background: "rgba(25,176,0,0.06)",
         border: "1px solid rgba(25,176,0,0.2)",
-        borderRadius: "0.5rem",
+        boxShadow: "4px 4px 0 rgba(0,0,0,0.1)",
       }}
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}

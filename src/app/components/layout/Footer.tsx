@@ -1,4 +1,5 @@
-import { MessageCircle, MapPin, Phone, Clock, Camera, Share2, Shield } from "lucide-react";
+import { motion } from "motion/react";
+import { MessageCircle, MapPin, Phone, Clock, Camera, Share2, Shield, ArrowUp } from "lucide-react";
 import { CategoryIcon } from "../menu/CategoryIcon";
 import { buildWhatsAppUrl } from "../../utils/constants";
 import { useSiteConfig } from "../../context/SiteConfigContext";
@@ -12,15 +13,22 @@ export function Footer({ onCategoryClick }: Props) {
   const { config } = useSiteConfig();
   const { categories } = useCategories();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer style={{ background: "#19B000", color: "#FFFFFF" }}>
-      {/* Top accent line */}
-      <div style={{ height: "3px", background: "#000000" }} />
+      <div
+        className="relative"
+        style={{
+          height: 6,
+          background: "linear-gradient(90deg, #19B000, #0D8A00, #19B000)",
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-
-          {/* Brand column */}
           <div className="md:col-span-1">
             <div className="mb-4">
               <span
@@ -41,45 +49,47 @@ export function Footer({ onCategoryClick }: Props) {
                   fontFamily: "Montserrat, sans-serif",
                   fontWeight: 700,
                   fontSize: "clamp(1.2rem, 3vw, 1.6rem)",
-                  color: "#000000",
+                  color: "#FFFFFF",
                   letterSpacing: "0.06em",
+                  opacity: 0.7,
                   marginTop: "-4px",
                 }}
               >
-                KITCHEN
+                GRILL
               </span>
             </div>
             <p
               className="text-sm leading-relaxed mb-5"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.85)" }}
+              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.9)" }}
             >
-              Une cuisine qui nourrit autant le corps que l'âme. Fait avec passion, servi avec le sourire.
+              Des grillades premium qui eveillent vos sens. Fait avec passion, servi avec le sourire.
             </p>
             <div className="flex gap-3">
-              <a
+              <motion.a
                 href="#"
                 className="w-9 h-9 flex items-center justify-center rounded-full"
-                style={{ background: "rgba(255,255,255,0.15)", color: "#fff" }}
+                style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}
+                whileHover={{ scale: 1.1, background: "rgba(255,255,255,0.3)" }}
                 aria-label="Instagram"
               >
                 <Camera size={16} />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="#"
                 className="w-9 h-9 flex items-center justify-center rounded-full"
-                style={{ background: "rgba(255,255,255,0.15)", color: "#fff" }}
+                style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}
+                whileHover={{ scale: 1.1, background: "rgba(255,255,255,0.3)" }}
                 aria-label="Facebook"
               >
                 <Share2 size={16} />
-              </a>
+              </motion.a>
             </div>
           </div>
 
-          {/* Navigation */}
           <div>
             <h4
               className="mb-4 text-sm font-bold tracking-widest uppercase"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
+              style={{ fontFamily: "Montserrat, sans-serif", color: "rgba(255,255,255,0.5)" }}
             >
               Navigation
             </h4>
@@ -91,7 +101,7 @@ export function Footer({ onCategoryClick }: Props) {
                       onCategoryClick(cat);
                       document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="flex items-center gap-1.5 text-sm hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 text-sm transition-all duration-200"
                     style={{
                       cursor: "pointer",
                       background: "none",
@@ -108,11 +118,10 @@ export function Footer({ onCategoryClick }: Props) {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4
               className="mb-4 text-sm font-bold tracking-widest uppercase"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
+              style={{ fontFamily: "Montserrat, sans-serif", color: "rgba(255,255,255,0.5)" }}
             >
               Contact
             </h4>
@@ -121,66 +130,86 @@ export function Footer({ onCategoryClick }: Props) {
                 <Phone size={14} /> +229 00 00 00 00
               </li>
               <li className="flex items-center gap-2 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-                <MapPin size={14} /> Cotonou, Bénin
+                <MapPin size={14} /> Cotonou, Benin
               </li>
               <li className="flex items-center gap-2 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-                <Clock size={14} /> Lun-Sam: 10h – 22h
+                <Clock size={14} /> Lun-Sam: 10h - 22h
               </li>
             </ul>
           </div>
 
-          {/* Commander */}
           <div>
             <h4
               className="mb-4 text-sm font-bold tracking-widest uppercase"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
+              style={{ fontFamily: "Montserrat, sans-serif", color: "rgba(255,255,255,0.5)" }}
             >
               Commander
             </h4>
-            <a
+            <motion.a
               href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold mb-3"
               style={{
-                background: "#FFFFFF",
-                color: "#19B000",
+                background: "#000000",
+                color: "#FFFFFF",
                 fontFamily: "Montserrat, sans-serif",
-                borderRadius: "0.5rem",
                 textDecoration: "none",
                 display: "inline-flex",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
               }}
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
             >
               <MessageCircle size={14} /> Commander via WhatsApp
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="/login"
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold"
               style={{
-                background: "rgba(0,0,0,0.2)",
+                background: "transparent",
                 color: "#FFFFFF",
                 fontFamily: "Montserrat, sans-serif",
-                borderRadius: "0.5rem",
+                border: "1px solid rgba(255,255,255,0.25)",
                 textDecoration: "none",
                 display: "inline-flex",
               }}
+              whileHover={{ borderColor: "rgba(255,255,255,0.5)" }}
             >
               <Shield size={14} /> Administration
-            </a>
+            </motion.a>
           </div>
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div
         className="py-3 px-4 text-center"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.2)", fontFamily: "Open Sans, sans-serif" }}
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.15)",
+          fontFamily: "Open Sans, sans-serif",
+        }}
       >
-        <p className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
-          &copy; 2026 BETHEL KITCHEN &mdash; Fait avec soin et générosité
+        <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+          &copy; 2026 BETHEL GRILL &mdash; Fait avec soin et generosite
         </p>
       </div>
+
+      <motion.button
+        onClick={scrollToTop}
+        className="fixed bottom-6 right-6 z-20 flex items-center justify-center w-10 h-10"
+        style={{
+          background: "#000000",
+          color: "#FFFFFF",
+          border: "none",
+          borderRadius: "50%",
+          cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        }}
+        whileHover={{ scale: 1.1, y: -2 }}
+        whileTap={{ scale: 0.9 }}
+        aria-label="Retour en haut"
+      >
+        <ArrowUp size={18} />
+      </motion.button>
     </footer>
   );
 }

@@ -12,15 +12,14 @@ export function CookieConsentBanner({ visible, onAccept, onDecline }: CookieCons
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+      style={{ background: "rgba(0,0,0,0.5)" }}
     >
       <div
         className="w-full max-w-sm p-6"
         style={{
-          background: "rgba(255,255,255,0.98)",
-          borderRadius: "1rem",
-          border: "1px solid rgba(25,176,0,0.2)",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.25)",
+          background: "#FFFFFF",
+          border: "1px solid rgba(0,0,0,0.08)",
+          boxShadow: "6px 6px 0 rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.12)",
         }}
       >
         <div className="flex items-start gap-3 mb-4">
@@ -50,14 +49,14 @@ export function CookieConsentBanner({ visible, onAccept, onDecline }: CookieCons
           <button
             onClick={onAccept}
             className="flex-1 py-2.5 text-sm font-semibold"
-            style={{
-              background: "#19B000",
-              border: "none",
-              borderRadius: "0.375rem",
-              fontFamily: "Montserrat, sans-serif",
-              color: "#FFFFFF",
-              cursor: "pointer",
-            }}
+              style={{
+                background: "linear-gradient(135deg, #19B000, #0D8A00)",
+                color: "#FFFFFF",
+                border: "none",
+                fontFamily: "Montserrat, sans-serif",
+                cursor: "pointer",
+                boxShadow: "2px 2px 0 rgba(0,0,0,0.15)",
+              }}
           >
             Accepter
           </button>
@@ -67,7 +66,6 @@ export function CookieConsentBanner({ visible, onAccept, onDecline }: CookieCons
             style={{
               background: "transparent",
               border: "1px solid rgba(0,0,0,0.12)",
-              borderRadius: "0.375rem",
               color: "#6B6357",
               fontFamily: "Montserrat, sans-serif",
               cursor: "pointer",

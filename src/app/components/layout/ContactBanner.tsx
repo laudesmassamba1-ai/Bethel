@@ -22,20 +22,18 @@ export function ContactBanner() {
   return (
     <motion.section
       className="py-12 sm:py-16 mt-4 relative overflow-hidden"
-      style={{ background: "#000000" }}
+      style={{
+        background: "#1A1815",
+        backgroundImage: "radial-gradient(circle at 70% 30%, rgba(25,176,0,0.06) 0%, transparent 50%), radial-gradient(circle at 20% 70%, rgba(0,0,0,0.3) 0%, transparent 50%)",
+      }}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
     >
-      {/* Subtle grid overlay */}
       <div
+        className="absolute inset-0 pointer-events-none opacity-[0.02]"
         style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(25,176,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(25,176,0,0.03) 1px, transparent 1px)",
-          backgroundSize: "44px 44px",
-          pointerEvents: "none",
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 3px)",
         }}
       />
 
@@ -57,20 +55,19 @@ export function ContactBanner() {
             className="font-semibold"
             style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(25,176,0,0.8)" }}
           >
-            Discutez directement avec notre équipe sur WhatsApp
+            Discutez directement avec notre equipe sur WhatsApp
           </p>
         </div>
 
-        <motion.button
+          <motion.button
           onClick={handleClick}
           className="flex items-center gap-3 px-8 py-4 text-base font-semibold text-white whitespace-nowrap flex-shrink-0"
           style={{
-            background: "#19B000",
-            borderRadius: "0.5rem",
+            background: "linear-gradient(135deg, #19B000, #0D8A00)",
             border: "none",
             fontFamily: "Montserrat, sans-serif",
             cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(25,176,0,0.35)",
+            boxShadow: "4px 4px 0 rgba(0,0,0,0.2), 0 8px 24px rgba(25,176,0,0.25)",
           }}
           whileHover={{ scale: 1.04, y: -2 }}
           whileTap={{ scale: 0.96 }}

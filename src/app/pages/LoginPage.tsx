@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useNavigate, Link } from "react-router";
 import { useAuth } from "../context/AuthContext";
-import { LogIn } from "lucide-react";
+import { LogIn, AlertCircle } from "lucide-react";
 
 export function LoginPage() {
   const { login, user } = useAuth();
@@ -18,13 +18,21 @@ export function LoginPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!email.trim() || !password) {
+      setError("Veuillez remplir tous les champs");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
       await login(email, password, remember);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Erreur de connexion");
+      if (err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
+        setError("Impossible de contacter le serveur. Verifiez votre connexion.");
+      } else {
+        setError(err.message || "Email ou mot de passe incorrect");
+      }
     } finally {
       setLoading(false);
     }
@@ -63,23 +71,24 @@ export function LoginPage() {
                 letterSpacing: "0.06em",
               }}
             >
-              KITCHEN
+              GRILL
             </span>
           </div>
           <p
             className="text-sm"
             style={{ color: "#6B6357", fontFamily: "Open Sans, sans-serif" }}
           >
-            Connectez-vous pour gérer le site
+            Connectez-vous pour gerer le site
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
             <div
-              className="p-2.5 text-sm font-semibold text-center text-white"
+              className="flex items-center gap-2 p-2.5 text-sm font-semibold text-white"
               style={{ background: "#DC2626", borderRadius: "0.5rem" }}
             >
+              <AlertCircle size={14} className="flex-shrink-0" />
               {error}
             </div>
           )}
@@ -90,13 +99,16 @@ export function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-3 py-2.5 text-sm outline-none"
+            autoComplete="email"
+            className="w-full px-3 py-2.5 text-sm outline-none transition-all duration-200"
             style={{
-              border: "1px solid rgba(0,0,0,0.12)",
+              border: error ? "1px solid #DC2626" : "1px solid rgba(0,0,0,0.12)",
               borderRadius: "0.5rem",
               background: "#FFFFFF",
               fontFamily: "Open Sans, sans-serif",
             }}
+            onFocus={(e) => { e.target.style.borderColor = "#19B000"; }}
+            onBlur={(e) => { e.target.style.borderColor = error ? "#DC2626" : "rgba(0,0,0,0.12)"; }}
           />
 
           <input
@@ -105,13 +117,16 @@ export function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-3 py-2.5 text-sm outline-none"
+            autoComplete="current-password"
+            className="w-full px-3 py-2.5 text-sm outline-none transition-all duration-200"
             style={{
-              border: "1px solid rgba(0,0,0,0.12)",
+              border: error ? "1px solid #DC2626" : "1px solid rgba(0,0,0,0.12)",
               borderRadius: "0.5rem",
               background: "#FFFFFF",
               fontFamily: "Open Sans, sans-serif",
             }}
+            onFocus={(e) => { e.target.style.borderColor = "#19B000"; }}
+            onBlur={(e) => { e.target.style.borderColor = error ? "#DC2626" : "rgba(0,0,0,0.12)"; }}
           />
 
           <label
@@ -130,7 +145,7 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold text-white"
+            className="flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold text-white transition-all duration-200"
             style={{
               background: loading ? "#6B6357" : "#19B000",
               borderRadius: "0.5rem",
@@ -140,18 +155,22 @@ export function LoginPage() {
               boxShadow: loading ? "none" : "0 8px 32px rgba(25,176,0,0.35)",
             }}
           >
-            <LogIn size={16} />
-            {loading ? "Connexion…" : "Se connecter"}
+            {loading ? (
+              <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+            ) : (
+              <LogIn size={16} />
+            )}
+            {loading ? "Connexion..." : "Se connecter"}
           </button>
         </form>
 
-        <a
-          href="/"
-          className="block text-center mt-4 text-xs font-semibold"
+        <Link
+          to="/"
+          className="block text-center mt-4 text-xs font-semibold transition-all duration-200 hover:opacity-60"
           style={{ color: "#6B6357", fontFamily: "Open Sans, sans-serif" }}
         >
-          ← Retour au site
-        </a>
+          Retour au site
+        </Link>
       </div>
     </div>
   );

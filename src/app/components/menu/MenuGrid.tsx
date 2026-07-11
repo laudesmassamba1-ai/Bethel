@@ -42,15 +42,31 @@ export function MenuGrid({ menuItems, activeCategory, onCategoryChange, onAddToC
   }, [menuItems]);
 
   return (
-    <section id="menu" className="max-w-7xl mx-auto px-4 py-16">
+    <section id="menu" className="relative px-4 py-16">
+      {/* Chalkboard background */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "#2D2A24",
+          backgroundImage: "radial-gradient(circle at 30% 50%, rgba(255,255,255,0.02) 0%, transparent 50%)",
+        }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 3px)",
+        }}
+      />
+
+      <div className="max-w-7xl mx-auto relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.4 }}
       >
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        {/* Chalk Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-6" style={{ borderBottom: "1px solid rgba(245,240,232,0.1)" }}>
           <div>
             <h2
               className="leading-none"
@@ -58,8 +74,9 @@ export function MenuGrid({ menuItems, activeCategory, onCategoryChange, onAddToC
                 fontFamily: "Montserrat, sans-serif",
                 fontWeight: 900,
                 fontSize: "clamp(2rem, 5vw, 3.2rem)",
-                color: "#000000",
+                color: "#F5F0E8",
                 letterSpacing: "-0.02em",
+                textShadow: "2px 2px 0 rgba(0,0,0,0.3)",
               }}
             >
               Notre{" "}
@@ -67,7 +84,7 @@ export function MenuGrid({ menuItems, activeCategory, onCategoryChange, onAddToC
             </h2>
             <p
               className="text-sm mt-1.5"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}
+              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(245,240,232,0.5)" }}
             >
               {filteredMenu.length} plat{filteredMenu.length > 1 ? "s" : ""} disponible{filteredMenu.length > 1 ? "s" : ""}
             </p>
@@ -78,10 +95,8 @@ export function MenuGrid({ menuItems, activeCategory, onCategoryChange, onAddToC
             <div
               className="flex items-center px-3"
               style={{
-                background: "rgba(255,255,255,0.6)",
+                background: "#FFFFFF",
                 border: "1px solid rgba(0,0,0,0.1)",
-                borderRadius: "0.5rem",
-                backdropFilter: "blur(8px)",
               }}
             >
               <Search size={14} color="#6B6357" strokeWidth={2} />
@@ -143,6 +158,7 @@ export function MenuGrid({ menuItems, activeCategory, onCategoryChange, onAddToC
       )}
 
       <PlatDetailModal item={detailItem} onClose={() => setDetailItem(null)} onAdd={onAddToCart} />
+      </div>
     </section>
   );
 }
