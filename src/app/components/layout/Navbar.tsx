@@ -18,10 +18,10 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
     <header
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        background: scrolled ? "rgba(0,0,0,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(60px) saturate(200%)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(60px) saturate(200%)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(25,176,0,0.08)" : "1px solid transparent",
+        background: scrolled ? "rgba(250,250,248,0.8)" : "transparent",
+        backdropFilter: scrolled ? "blur(40px) saturate(180%)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(40px) saturate(180%)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(0,0,0,0.05)" : "1px solid transparent",
         transition: "all 0.5s ease",
       }}
     >
@@ -48,8 +48,9 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
               fontFamily: "Montserrat, sans-serif",
               fontWeight: 700,
               fontSize: "clamp(1rem, 2.5vw, 1.4rem)",
-              color: "#FFFFFF",
+              color: "#000000",
               letterSpacing: "0.04em",
+              transition: "color 0.5s ease",
             }}
           >
             KITCHEN
@@ -63,9 +64,9 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             rel="noopener noreferrer"
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
             style={{
-              color: "#FFFFFF",
+              color: "#000000",
               background: "transparent",
-              border: "1px solid rgba(255,255,255,0.15)",
+              border: "1px solid rgba(0,0,0,0.12)",
               textDecoration: "none",
               fontFamily: "Montserrat, sans-serif",
             }}
@@ -78,9 +79,9 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             href="/dashboard"
             className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold"
             style={{
-              color: "rgba(255,255,255,0.6)",
+              color: "rgba(0,0,0,0.45)",
               background: "transparent",
-              border: "1px solid rgba(255,255,255,0.15)",
+              border: "1px solid rgba(0,0,0,0.12)",
               textDecoration: "none",
               fontFamily: "Montserrat, sans-serif",
             }}
@@ -124,8 +125,8 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden flex items-center justify-center w-8 h-8"
             style={{
-              border: "1px solid rgba(255,255,255,0.15)",
-              color: "#FFFFFF",
+              border: "1px solid rgba(0,0,0,0.12)",
+              color: "#000000",
               background: "transparent",
               cursor: "pointer",
             }}
@@ -144,9 +145,9 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             style={{
-              borderTop: "1px solid rgba(255,255,255,0.06)",
+              borderTop: "1px solid rgba(0,0,0,0.06)",
               overflow: "hidden",
-              background: "rgba(0,0,0,0.95)",
+              background: "rgba(250,250,248,0.95)",
               backdropFilter: "blur(40px)",
             }}
           >
@@ -157,8 +158,8 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold"
                 style={{
-                  color: "#FFFFFF",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "#000000",
+                  border: "1px solid rgba(0,0,0,0.1)",
                   fontFamily: "Montserrat, sans-serif",
                   textDecoration: "none",
                 }}
@@ -169,8 +170,8 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
                 href="/dashboard"
                 className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold"
                 style={{
-                  color: "rgba(255,255,255,0.7)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "rgba(0,0,0,0.5)",
+                  border: "1px solid rgba(0,0,0,0.1)",
                   fontFamily: "Montserrat, sans-serif",
                   textDecoration: "none",
                 }}

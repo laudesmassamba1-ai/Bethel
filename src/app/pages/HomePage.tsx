@@ -125,7 +125,7 @@ function PlateCard({
       whileHover={{
         scale: pos.scale * 1.22, rotate: 0, zIndex: 300,
         y: pos.y - cardSize * 0.5 - 18,
-        boxShadow: "0 14px 40px rgba(0,0,0,0.4)",
+        boxShadow: "0 14px 40px rgba(0,0,0,0.15)",
         transition: { duration: 0.3, ease: "easeOut" },
       }}
       whileTap={{ scale: pos.scale * 1.08 }}
@@ -134,11 +134,11 @@ function PlateCard({
       <div
         className="relative overflow-hidden"
         style={{
-          background: "rgba(20,20,20,0.85)",
-          border: "1px solid rgba(25,176,0,0.15)",
+          background: "#FFFFFF",
+          border: "1px solid rgba(0,0,0,0.06)",
           padding: 4,
           paddingBottom: nameSize * 3,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
           backdropFilter: "blur(8px)",
         }}
       >
@@ -168,9 +168,9 @@ function PlateCard({
           </div>
         )}
         <div className="absolute bottom-0 left-0 right-0 px-1.5"
-          style={{ paddingBottom: 3, paddingTop: 2, background: "rgba(10,10,10,0.9)" }}>
+          style={{ paddingBottom: 3, paddingTop: 2, background: "rgba(255,255,255,0.95)" }}>
           <p className="truncate leading-tight"
-            style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: nameSize, color: "#FFFFFF", lineHeight: 1.15 }}>
+            style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: nameSize, color: "#000000", lineHeight: 1.15 }}>
             {item.name}
           </p>
           <p className="leading-tight"
@@ -196,13 +196,13 @@ function CategoryChip({
       style={{
         fontFamily: "Montserrat, sans-serif",
         background: isActive
-          ? "linear-gradient(135deg, rgba(25,176,0,0.25), rgba(25,176,0,0.08))"
-          : "rgba(255,255,255,0.04)",
-        color: isActive ? "#19B000" : "rgba(255,255,255,0.5)",
-        border: isActive ? "1px solid rgba(25,176,0,0.4)" : "1px solid rgba(255,255,255,0.08)",
+          ? "linear-gradient(135deg, rgba(25,176,0,0.12), rgba(25,176,0,0.04))"
+          : "rgba(255,255,255,0.8)",
+        color: isActive ? "#19B000" : "rgba(0,0,0,0.45)",
+        border: isActive ? "1px solid rgba(25,176,0,0.3)" : "1px solid rgba(0,0,0,0.08)",
         borderRadius: 12,
         backdropFilter: "blur(12px)",
-        boxShadow: isActive ? "0 0 30px rgba(25,176,0,0.12)" : "none",
+        boxShadow: isActive ? "0 4px 20px rgba(25,176,0,0.1)" : "0 1px 4px rgba(0,0,0,0.04)",
         transition: "all 0.35s ease",
       }}
       initial={{ opacity: 0, y: 20 }}
@@ -216,8 +216,8 @@ function CategoryChip({
       <span className="text-xs font-bold tracking-wide">{cat}</span>
       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
         style={{
-          background: isActive ? "rgba(25,176,0,0.2)" : "rgba(255,255,255,0.06)",
-          color: isActive ? "#19B000" : "rgba(255,255,255,0.3)",
+          background: isActive ? "rgba(25,176,0,0.15)" : "rgba(0,0,0,0.05)",
+          color: isActive ? "#19B000" : "rgba(0,0,0,0.3)",
         }}>
         {count}
       </span>
@@ -264,10 +264,10 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
   const handleMouseLeave = useCallback(() => setMousePos({ x: 0, y: 0 }), []);
 
   return (
-    <section id="menu" className="relative py-20 sm:py-28 px-4" style={{ background: "linear-gradient(180deg, #000000 0%, #071a07 50%, #000000 100%)" }}>
+    <section id="menu" className="relative py-20 sm:py-28 px-4" style={{ background: "#FAFAF8" }}>
       {/* Radial glow */}
       <div className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(25,176,0,0.06) 0%, transparent 60%)" }} />
+        style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(25,176,0,0.04) 0%, transparent 60%)" }} />
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
@@ -281,7 +281,7 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
             Notre Carte
           </span>
           <h2 className="text-3xl sm:text-5xl font-black leading-tight mb-4"
-            style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}>
+            style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}>
             Des saveurs qui <span style={{ color: "#19B000" }}>font rever</span>
           </h2>
           <div className="flex items-center justify-center gap-3 mb-3">
@@ -289,7 +289,7 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
             <span style={{ width: 6, height: 6, background: "#19B000", display: "block", borderRadius: "50%", opacity: 0.5 }} />
             <span style={{ width: 40, height: 1, background: "linear-gradient(90deg, rgba(25,176,0,0.4), transparent)", display: "block" }} />
           </div>
-          <p className="text-sm" style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.35)" }}>
+          <p className="text-sm" style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
             Explorez nos plats, cliquez pour decouvrir
           </p>
         </motion.div>
@@ -345,24 +345,24 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
               transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
             }}
           >
-            {/* Dark ceramic surface */}
+            {/* Light ceramic surface */}
             <div className="absolute inset-0"
               style={{
                 borderRadius: "50%",
-                background: "radial-gradient(circle at 42% 38%, #1a1a1a 0%, #111 55%, #0a0a0a 78%, #050505 100%)",
+                background: "radial-gradient(circle at 42% 38%, #FFFFFF 0%, #FAFAFA 55%, #F0F0F0 78%, #E8E8E8 90%, #DDDDDD 100%)",
                 boxShadow: `
-                  inset 0 0 60px rgba(25,176,0,0.04),
-                  0 0 0 8px rgba(25,176,0,0.08),
-                  0 0 0 9px rgba(255,255,255,0.05),
-                  0 0 0 12px rgba(25,176,0,0.04),
-                  0 24px 80px rgba(0,0,0,0.6),
-                  0 10px 30px rgba(0,0,0,0.4)
+                  inset 0 0 50px rgba(0,0,0,0.03),
+                  0 0 0 8px rgba(0,0,0,0.03),
+                  0 0 0 9px rgba(255,255,255,0.9),
+                  0 0 0 12px rgba(0,0,0,0.04),
+                  0 20px 60px rgba(0,0,0,0.1),
+                  0 8px 24px rgba(0,0,0,0.06)
                 `,
               }} />
 
             {/* Inner rings */}
-            <div className="absolute" style={{ inset: "7%", borderRadius: "50%", border: "1px solid rgba(25,176,0,0.06)" }} />
-            <div className="absolute" style={{ inset: "9%", borderRadius: "50%", border: "0.5px solid rgba(255,255,255,0.02)" }} />
+            <div className="absolute" style={{ inset: "7%", borderRadius: "50%", border: "1px solid rgba(0,0,0,0.04)" }} />
+            <div className="absolute" style={{ inset: "9%", borderRadius: "50%", border: "0.5px solid rgba(0,0,0,0.02)" }} />
 
             <PlateDecorations radius={plateRadius} />
 
@@ -376,8 +376,8 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
             {filtered.length === 0 && (
               <motion.div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <UtensilsCrossed size={48} strokeWidth={1} color="rgba(255,255,255,0.1)" />
-                <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "rgba(255,255,255,0.25)" }}>
+                <UtensilsCrossed size={48} strokeWidth={1} color="rgba(0,0,0,0.1)" />
+                <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "#9B9385" }}>
                   Aucun plat dans cette categorie
                 </p>
               </motion.div>
@@ -386,7 +386,7 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
         </motion.div>
 
         <motion.p className="text-center mt-8 text-xs"
-          style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.25)" }}
+          style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}
           key={activeCategory}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -521,20 +521,20 @@ export function HomePage({ onAddToCart }: Props) {
 
       {/* ═══ CTA ═══ */}
       <section className="relative py-20 sm:py-28 px-4 text-center"
-        style={{ background: "linear-gradient(180deg, #000000 0%, #0a1a0a 50%, #000000 100%)" }}>
+        style={{ background: "#FAFAF8" }}>
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(25,176,0,0.06) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(25,176,0,0.04) 0%, transparent 70%)" }} />
         <Reveal>
           <span className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block"
             style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
             Pret a savourer ?
           </span>
           <h2 className="text-3xl sm:text-5xl font-black leading-tight mb-6"
-            style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}>
+            style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}>
             Commandez en <span style={{ color: "#19B000" }}>quelques clics</span>
           </h2>
           <p className="text-sm sm:text-base max-w-lg mx-auto mb-8 leading-relaxed"
-            style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}>
+            style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>
             Discutez directement avec notre equipe via WhatsApp.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -553,8 +553,8 @@ export function HomePage({ onAddToCart }: Props) {
             <motion.a href="tel:+229000000000"
               className="flex items-center gap-2 px-8 py-3.5 text-sm font-bold"
               style={{
-                background: "transparent", color: "#FFFFFF",
-                border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6,
+                background: "transparent", color: "#000000",
+                border: "1px solid rgba(0,0,0,0.15)", borderRadius: 6,
                 fontFamily: "Montserrat, sans-serif", textDecoration: "none",
               }}
               whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}>

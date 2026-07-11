@@ -49,13 +49,13 @@ export function BentoGlassCard({ children, className = "", onClick, delay = 0, s
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
       style={{
-        background: "rgba(20, 20, 20, 0.6)",
-        border: "1px solid rgba(25,176,0,0.1)",
+        background: "rgba(255, 255, 255, 0.7)",
+        border: "1px solid rgba(0,0,0,0.06)",
         borderRadius: 16,
-        backdropFilter: "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: "blur(24px) saturate(180%)",
+        backdropFilter: "blur(20px) saturate(180%)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%)",
         cursor: onClick ? "pointer" : undefined,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
         rotateX: tiltX,
         rotateY: tiltY,
         perspective: 800,
@@ -65,7 +65,7 @@ export function BentoGlassCard({ children, className = "", onClick, delay = 0, s
         onClick
           ? {
               y: -6,
-              boxShadow: "0 16px 48px rgba(25,176,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
+              boxShadow: "0 16px 48px rgba(25,176,0,0.1), inset 0 1px 0 rgba(255,255,255,1)",
               transition: { duration: 0.3, ease: "easeOut" },
             }
           : undefined
@@ -75,7 +75,7 @@ export function BentoGlassCard({ children, className = "", onClick, delay = 0, s
       <div
         className="pointer-events-none absolute inset-0 z-10"
         style={{
-          background: `radial-gradient(circle 200px at ${glowPos.x}% ${glowPos.y}%, rgba(25,176,0,0.18), transparent 70%)`,
+          background: `radial-gradient(circle 200px at ${glowPos.x}% ${glowPos.y}%, rgba(25,176,0,0.12), transparent 70%)`,
           opacity: glowOpacity,
           transition: "opacity 0.3s ease",
         }}
