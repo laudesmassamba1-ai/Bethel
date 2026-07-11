@@ -56,8 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Impossible de contacter le serveur");
     }
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: "Erreur de connexion" }));
-      throw new Error(err.message || "Identifiants invalides");
+      const err = await res.json().catch(() => null);
+      if (err?.message) throw new Error(err.message);
+      throw new Error(`Erreur serveur (${res.status}). Verifiez que le backend est demarre.`);
     }
     const data = await res.json();
     if (!data.token) throw new Error("Reponse invalide du serveur");
