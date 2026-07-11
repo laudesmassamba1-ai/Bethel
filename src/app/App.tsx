@@ -29,7 +29,7 @@ function HomePageWrapper() {
   const { addToCart } = useCart();
 
   return (
-    <RootLayout hideNav hideFooter>
+    <RootLayout>
       <HomePage
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
