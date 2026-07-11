@@ -10,7 +10,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string, remember?: boolean) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -18,9 +18,13 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_TOKEN_KEY = "bethel-admin-token";
 
+function getStoredToken(): string | null {
+  return localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(AUTH_TOKEN_KEY));
+  const [token, setToken] = useState<string | null>(() => getStoredToken());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,25 +36,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Session expiree");
+        if (!res.ok) throw new Error("Session expirée");
         return res.json();
       })
       .then((data) => setUser(data.user))
       .catch(() => {
         localStorage.removeItem(AUTH_TOKEN_KEY);
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
         setToken(null);
       })
       .finally(() => setLoading(false));
   }, [token]);
 
-  const login = useCallback(async (email: string, password: string, remember?: boolean) => {
+  const login = useCallback(async (email: string, password: string, rememberMe = false) => {
     let res: Response;
     try {
       res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password, remember: remember ?? false }),
+        body: JSON.stringify({ email, password }),
       });
     } catch {
       throw new Error("Impossible de contacter le serveur");
@@ -58,11 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!res.ok) {
       const err = await res.json().catch(() => null);
       if (err?.message) throw new Error(err.message);
-      throw new Error(`Erreur serveur (${res.status}). Verifiez que le backend est demarre.`);
+      throw new Error(`Erreur serveur (${res.status}). Vérifiez que le backend est démarré.`);
     }
     const data = await res.json();
-    if (!data.token) throw new Error("Reponse invalide du serveur");
-    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+    if (!data.token) throw new Error("Réponse invalide du serveur");
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem(AUTH_TOKEN_KEY, data.token);
     setToken(data.token);
     setUser(data.user);
   }, []);
@@ -74,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
     setToken(null);
     setUser(null);
   }, [token]);
@@ -87,6 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth doit etre utilise dans AuthProvider");
+  if (!ctx) throw new Error("useAuth doit être utilisé dans AuthProvider");
   return ctx;
 }

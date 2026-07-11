@@ -1,7 +1,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import {
-  ChevronLeft, ChevronRight, Star, Clock, X, MessageCircle,
+  ChevronLeft, ChevronRight, X,
   ShoppingCart, Shield, ExternalLink, ChefHat,
 } from "lucide-react";
 import HTMLFlipBook from "react-pageflip";
@@ -292,14 +292,6 @@ function CoverPage({ featuredItems = [] }: { featuredItems?: MenuItem[] }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.55 }}
         >
-          <span className="flex items-center gap-1">
-            <Star size={11} fill={GOLD_BRIGHT} stroke="none" /> 4.9
-          </span>
-          <span style={{ width: 1, height: 10, background: GOLD, opacity: 0.3 }} />
-          <span className="flex items-center gap-1">
-            <Clock size={11} stroke={GOLD} /> 25 min
-          </span>
-          <span style={{ width: 1, height: 10, background: GOLD, opacity: 0.3 }} />
           <span>Grillades & Saveurs</span>
         </motion.div>
 
@@ -346,60 +338,6 @@ function BackCoverPage() {
 
       <OrnamentDivider />
 
-      <motion.span
-        className="text-[9px] font-semibold tracking-[0.4em] uppercase mt-4 mb-4 block"
-        style={{ fontFamily: "Montserrat, sans-serif", color: GOLD, opacity: 0.45 }}
-        initial={{ opacity: 0, y: -5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        Contact & Commandes
-      </motion.span>
-
-      <motion.h2
-        className="text-lg sm:text-xl font-bold leading-tight mb-3"
-        style={{
-          fontFamily: "Montserrat, sans-serif",
-          color: GOLD_BRIGHT,
-          textShadow: "0 2px 4px rgba(0,0,0,0.4)",
-        }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        Commandez directement<br />sur WhatsApp
-      </motion.h2>
-
-      <motion.p
-        className="text-xs mb-6 max-w-[240px] leading-relaxed"
-        style={{ fontFamily: "Open Sans, sans-serif", color: GOLD_DIM, opacity: 0.6 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        Discutez avec notre equipe, passez votre commande et recevez-la chez vous.
-      </motion.p>
-
-      <motion.a
-        href="https://wa.me/237690788315?text=Bonjour%20%21%20Je%20souhaite%20commander."
-        target="_blank" rel="noopener noreferrer"
-        className="flex items-center gap-2 px-7 py-3 text-xs font-semibold transition-all duration-300 inline-flex"
-        style={{
-          background: "#25D366",
-          border: "none",
-          borderRadius: 4,
-          cursor: "pointer",
-          fontFamily: "Montserrat, sans-serif",
-          textDecoration: "none",
-          color: "#fff",
-          boxShadow: "0 4px 16px rgba(37,211,102,0.3), inset 0 1px 0 rgba(255,255,255,0.15)",
-        }}
-        whileHover={{ scale: 1.03, y: -2, boxShadow: "0 6px 24px rgba(37,211,102,0.4)" }}
-        whileTap={{ scale: 0.97 }}
-      >
-        <MessageCircle size={16} /> Commander maintenant
-      </motion.a>
-
       <a href="/dashboard"
         className="flex items-center gap-1.5 mt-5 text-[9px] font-semibold transition-all duration-200 hover:opacity-60"
         style={{ fontFamily: "Montserrat, sans-serif", color: GOLD_DIM, textDecoration: "none", letterSpacing: "0.05em", opacity: 0.4 }}
@@ -416,7 +354,7 @@ function BackCoverPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <p className="mb-1">Bethel Grill Kitchen</p>
+        <p className="mb-1">Bethel Grill</p>
         <p>Ouvert 7j/7 &mdash; 11h a 22h</p>
       </motion.div>
 
@@ -553,14 +491,6 @@ function CategoryPage({
                         }}
                       >
                         {item.badge}
-                      </span>
-                    )}
-                    {item.rating && (
-                      <span className="flex items-center gap-0.5 text-[9px]"
-                        style={{ fontFamily: "Open Sans, sans-serif", color: GOLD_DIM, opacity: 0.7 }}
-                      >
-                        <Star size={9} fill={GOLD_BRIGHT} stroke="none" />
-                        {item.rating}
                       </span>
                     )}
                   </div>

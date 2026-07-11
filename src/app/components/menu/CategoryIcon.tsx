@@ -1,21 +1,31 @@
 import { Beef, Pizza, Sandwich, CakeSlice, Coffee, UtensilsCrossed, Flame } from "lucide-react";
 
-const ICON_MAP: Record<string, React.ReactNode> = {
-  "Bœuf": <Beef size={14} strokeWidth={2.5} />,
-  "Poulet Braisé": <Flame size={14} strokeWidth={2.5} />,
-  Burgers: <Beef size={14} strokeWidth={2.5} />,
-  Pizzas: <Pizza size={14} strokeWidth={2.5} />,
-  Tacos: <Sandwich size={14} strokeWidth={2.5} />,
-  Desserts: <CakeSlice size={14} strokeWidth={2.5} />,
-  Boissons: <Coffee size={14} strokeWidth={2.5} />,
-  "Menu du chef": <Flame size={14} strokeWidth={2.5} />,
-  "Menu grillade": <Beef size={14} strokeWidth={2.5} />,
-  "Menu rafraîchissant": <Coffee size={14} strokeWidth={2.5} />,
-};
+function getIcon(cat: string, size: number) {
+  const s = { size, strokeWidth: 2.5 } as const;
+  switch (cat) {
+    case "Boeuf":
+    case "Burgers":
+    case "Menu grillade":
+      return <Beef {...s} />;
+    case "Poulet Braisé":
+    case "Poulet Braise":
+    case "Menu du chef":
+      return <Flame {...s} />;
+    case "Pizzas":
+      return <Pizza {...s} />;
+    case "Tacos":
+      return <Sandwich {...s} />;
+    case "Desserts":
+      return <CakeSlice {...s} />;
+    case "Boissons":
+    case "Menu rafraîchissant":
+    case "Menu rafraichissant":
+      return <Coffee {...s} />;
+    default:
+      return <UtensilsCrossed {...s} />;
+  }
+}
 
 export function CategoryIcon({ cat, size = 14 }: { cat: string; size?: number }) {
-  const scaled = { size, strokeWidth: 2.5 };
-  const icon = ICON_MAP[cat];
-  if (!icon) return <UtensilsCrossed {...scaled} />;
-  return <>{icon}</>;
+  return <>{getIcon(cat, size)}</>;
 }

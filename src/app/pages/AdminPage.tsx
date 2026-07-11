@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Navigate } from "react-router";
+import { motion } from "motion/react";
 import {
   LogOut, ExternalLink, TrendingUp, ShoppingBag, Calendar, Wallet,
   Clock, Star, UtensilsCrossed, RefreshCw, AlertCircle, RotateCcw,
+  Trash2, Download,
 } from "lucide-react";
-import { fetchStats } from "../utils/api";
+import { fetchStats, resetAllData } from "../utils/api";
 import { formatPrice } from "../utils/constants";
 import type { StatsDTO } from "../utils/api";
 
@@ -53,42 +55,45 @@ function ConfirmModal({ open, title, message, confirmLabel, onConfirm, onCancel 
 }
 
 /* ─── Stat Card ─── */
-function StatCard({ icon, label, value, sub, color, loading }: {
-  icon: React.ReactNode; label: string; value: string; sub?: string; color: string; loading?: boolean;
+function StatCard({ icon, label, value, sub, color, loading, delay = 0 }: {
+  icon: React.ReactNode; label: string; value: string; sub?: string; color: string; loading?: boolean; delay?: number;
 }) {
   return (
-    <div
-      className="flex flex-col p-4 sm:p-5 transition-all duration-300"
+    <motion.div
+      className="flex flex-col p-3 sm:p-5"
       style={{
         background: "rgba(255,255,255,0.6)",
         border: "1px solid rgba(0,0,0,0.06)",
         borderRadius: "0.75rem",
         backdropFilter: "blur(8px)",
       }}
+      initial={{ opacity: 0, y: 20, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-semibold tracking-wider uppercase"
+      <div className="flex items-center justify-between mb-1 sm:mb-2 gap-1">
+        <span className="text-[9px] sm:text-[10px] font-semibold tracking-wider uppercase truncate"
           style={{ fontFamily: "Montserrat, sans-serif", color: "#6B6357" }}
         >
           {label}
         </span>
-        <span style={{ color, opacity: loading ? 0.3 : 1 }}>{icon}</span>
+        <span className="flex-shrink-0" style={{ color, opacity: loading ? 0.3 : 1 }}>{icon}</span>
       </div>
       {loading ? (
-        <div className="h-6 w-24 rounded" style={{ background: "rgba(0,0,0,0.06)" }} />
+        <div className="h-5 sm:h-6 w-20 sm:w-24 rounded" style={{ background: "linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" }} />
       ) : (
-        <span className="text-xl sm:text-2xl font-bold leading-none"
+        <span className="text-lg sm:text-2xl font-bold leading-none"
           style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
         >
           {value}
         </span>
       )}
       {sub && !loading && (
-        <span className="text-xs mt-1" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>
+        <span className="text-[10px] sm:text-xs mt-1 leading-tight" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>
           {sub}
         </span>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -99,7 +104,7 @@ function CategoryPie({ data }: { data: { category: string; count: number }[] }) 
     return (
       <div className="flex flex-col items-center justify-center h-48 gap-2">
         <UtensilsCrossed size={24} style={{ color: "rgba(0,0,0,0.12)" }} />
-        <p className="text-sm" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>Aucune donnee</p>
+        <p className="text-sm" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>Aucune donnée</p>
       </div>
     );
   }
@@ -151,32 +156,36 @@ function BarChart({ data, valueKey, color, formatter }: {
 }) {
   const maxVal = Math.max(...data.map((d) => d[valueKey]), 1);
   return (
-    <div className="flex items-end gap-1 h-36 sm:h-44">
-      {data.map((d) => {
-        const v = d[valueKey];
-        const pct = (v / maxVal) * 100;
-        return (
-          <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
-            <span className="text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
-            >
-              {v > 0 ? formatter(v) : ""}
-            </span>
-            <div className="w-full rounded-sm relative overflow-hidden"
-              style={{
-                height: `${Math.max(pct, 3)}%`,
-                background: v > 0 ? `linear-gradient(180deg, ${color}, ${color}88)` : "rgba(0,0,0,0.04)",
-                transition: "height 0.8s ease, background 0.3s",
-              }}
-            />
-            <span className="text-[9px] font-semibold truncate w-full text-center"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}
-            >
-              {d.label.split(" ")[0]}
-            </span>
-          </div>
-        );
-      })}
+    <div className="overflow-x-auto -mx-1 px-1">
+      <div className="flex items-end gap-1 min-w-[280px] h-40 sm:h-48 lg:h-56">
+        {data.map((d) => {
+          const v = d[valueKey];
+          const pct = (v / maxVal) * 100;
+          const barH = Math.max(pct, 3);
+          return (
+            <div key={d.date} className="flex-1 flex flex-col items-center justify-end gap-1 group min-w-0" style={{ height: "100%" }}>
+              <span className="text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+                style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
+              >
+                {v > 0 ? formatter(v) : ""}
+              </span>
+              <div className="w-full rounded-sm"
+                style={{
+                  height: `${barH}%`,
+                  background: v > 0 ? `linear-gradient(180deg, ${color}, ${color}88)` : "rgba(0,0,0,0.04)",
+                  transition: "height 0.8s ease",
+                  minHeight: v > 0 ? 4 : 2,
+                }}
+              />
+              <span className="text-[8px] sm:text-[9px] font-semibold truncate w-full text-center"
+                style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}
+              >
+                {d.label.split(" ")[0]}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -184,13 +193,22 @@ function BarChart({ data, valueKey, color, formatter }: {
 /* ─── Loading Skeleton ─── */
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#F5F1EA" }}>
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: "#19B000", borderTopColor: "transparent" }} />
-        <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
-          Chargement...
-        </p>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "#FAFAF8" }}>
+      <div className="relative w-12 h-12">
+        <div className="absolute inset-0 rounded-full" style={{ border: "3px solid rgba(25,176,0,0.1)" }} />
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            border: "3px solid transparent",
+            borderTopColor: "#19B000",
+            borderRightColor: "#19B000",
+            animation: "spin-smooth 0.8s cubic-bezier(0.68,-0.55,0.27,1.55) infinite",
+          }}
+        />
       </div>
+      <p className="text-xs font-semibold tracking-widest uppercase" style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
+        Chargement du tableau de bord
+      </p>
     </div>
   );
 }
@@ -203,6 +221,10 @@ export function AdminPage() {
   const [statsError, setStatsError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const loadStats = useCallback(async (silent = false) => {
     if (!token) return;
@@ -233,19 +255,61 @@ export function AdminPage() {
     setRetrying(true);
     setStatsError(null);
     try {
-      const data = await fetchStats(token ?? undefined);
-      setStats(data);
-    } catch (err: any) {
-      setStatsError(err.message || "Erreur de chargement");
+      await loadStats(false);
     } finally {
       setRetrying(false);
-      setStatsLoading(false);
     }
-  }, [token]);
+  }, [loadStats]);
 
   const handleLogout = async () => {
     setShowLogoutConfirm(false);
     await logout();
+  };
+
+  const handleReset = async () => {
+    if (!token) return;
+    setShowResetConfirm(false);
+    setResetting(true);
+    setResetMessage(null);
+    try {
+      const result = await resetAllData(token);
+      setResetMessage(result.message);
+      await loadStats(true);
+    } catch (err: any) {
+      setResetMessage(err.message || "Erreur lors de la reinitialisation");
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!resetMessage) return;
+    const t = setTimeout(() => setResetMessage(null), 8000);
+    return () => clearTimeout(t);
+  }, [resetMessage]);
+
+  const handleExportPdf = async () => {
+    if (!token) return;
+    setDownloadingPdf(true);
+    try {
+      const res = await fetch("/api/stats/pdf", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Erreur ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bethel-grill-rapport-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setResetMessage("Erreur lors du telechargement du PDF");
+    } finally {
+      setDownloadingPdf(false);
+    }
   };
 
   if (authLoading) return <LoadingSkeleton />;
@@ -264,24 +328,33 @@ export function AdminPage() {
         onCancel={() => setShowLogoutConfirm(false)}
       />
 
-      <header className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4"
+      <ConfirmModal
+        open={showResetConfirm}
+        title="Reinitialiser les donnees"
+        message="ATTENTION : Toutes les commandes, articles de commande et tickets seront supprimes. Les clients seront conserves mais leurs compteurs remis a zero. Une copie de sauvegarde sera automatiquement creee."
+        confirmLabel={resetting ? "Reinitialisation..." : "Tout reinitialiser"}
+        onConfirm={handleReset}
+        onCancel={() => setShowResetConfirm(false)}
+      />
+
+      <header className="flex items-center justify-between px-2 sm:px-6 py-2 sm:py-4"
         style={{ borderBottom: "1px solid rgba(0,0,0,0.08)", background: "#FFFFFF" }}
       >
-        <div className="min-w-0">
+        <div className="min-w-0 mr-2">
           <div className="flex items-center gap-1 mb-0.5">
-            <span style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 900, fontSize: "1.2rem", color: "#19B000", letterSpacing: "0.06em" }}>
+            <span style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 900, fontSize: "clamp(0.9rem, 3vw, 1.2rem)", color: "#19B000", letterSpacing: "0.06em" }}>
               BETHEL
             </span>
-            <span style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#000000", letterSpacing: "0.04em" }}>
-              KITCHEN
+            <span style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: "clamp(0.9rem, 3vw, 1.2rem)", color: "#000000", letterSpacing: "0.04em" }}>
+              GRILL
             </span>
           </div>
-          <p className="text-xs truncate" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>
+          <p className="text-[10px] sm:text-xs truncate" style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>
             {user.name}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <button onClick={() => loadStats(true)}
             className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 text-xs font-semibold transition-all duration-200"
             style={{
@@ -296,6 +369,40 @@ export function AdminPage() {
           >
             <RefreshCw size={13} />
             <span className="hidden sm:inline">Actualiser</span>
+          </button>
+
+          <button onClick={handleExportPdf} disabled={downloadingPdf}
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 text-xs font-semibold transition-all duration-200"
+            style={{
+              background: "#19B000",
+              border: "2px solid #000000",
+              borderRadius: "0.375rem",
+              cursor: downloadingPdf ? "not-allowed" : "pointer",
+              fontFamily: "Montserrat, sans-serif",
+              color: "#FFFFFF",
+              boxShadow: "2px 2px 0 #000000",
+              opacity: downloadingPdf ? 0.6 : 1,
+            }}
+            title="Telecharger le rapport PDF"
+          >
+            <Download size={13} />
+            <span className="hidden sm:inline">PDF</span>
+          </button>
+
+          <button onClick={() => setShowResetConfirm(true)}
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 text-xs font-semibold transition-all duration-200"
+            style={{
+              background: "transparent",
+              border: "1px solid #DC2626",
+              borderRadius: "0.375rem",
+              cursor: "pointer",
+              fontFamily: "Montserrat, sans-serif",
+              color: "#DC2626",
+            }}
+            title="Reinitialiser toutes les donnees"
+          >
+            <Trash2 size={13} />
+            <span className="hidden sm:inline">Reset</span>
           </button>
 
           <a href="/admin" rel="noopener noreferrer"
@@ -359,24 +466,48 @@ export function AdminPage() {
               }}
             >
               {retrying ? (
-                <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent" style={{ animation: "spin-smooth 0.6s linear infinite" }} />
               ) : (
                 <RotateCcw size={16} />
               )}
-              {retrying ? "Chargement..." : "Reessayer"}
+              {retrying ? "Chargement..." : "Réessayer"}
             </button>
           </div>
         ) : stats ? (
           <div className="flex flex-col gap-4 sm:gap-6">
+            {resetMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 p-3 text-xs font-semibold"
+                style={{
+                  background: resetMessage.includes("Erreur") ? "#FEE2E2" : "#D1FAE5",
+                  color: resetMessage.includes("Erreur") ? "#DC2626" : "#065F46",
+                  border: `2px solid ${resetMessage.includes("Erreur") ? "#DC2626" : "#19B000"}`,
+                  borderRadius: "0.5rem",
+                  fontFamily: "Montserrat, sans-serif",
+                  boxShadow: `2px 2px 0 ${resetMessage.includes("Erreur") ? "#DC2626" : "#19B000"}`,
+                }}
+                onClick={() => setResetMessage(null)}
+              >
+                <Trash2 size={14} />
+                {resetMessage}
+              </motion.div>
+            )}
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <StatCard icon={<TrendingUp size={iconSize} />} label="Revenu total" value={formatPrice(stats.total_revenue)} color="#19B000" />
-              <StatCard icon={<ShoppingBag size={iconSize} />} label="Commandes" value={String(stats.total_orders)} sub={`${stats.orders_today} aujourdhui, ${stats.orders_this_month} ce mois`} color="#000000" />
+              <StatCard icon={<ShoppingBag size={iconSize} />} label="Commandes" value={String(stats.total_orders)} sub={`${stats.orders_today} aujourd'hui, ${stats.orders_this_week} cette semaine`} color="#000000" />
               <StatCard icon={<Calendar size={iconSize} />} label="Clients" value={String(stats.total_customers)} sub={`+${stats.new_customers_this_month} ce mois`} color="#19B000" />
               <StatCard icon={<Wallet size={iconSize} />} label="Panier moyen" value={formatPrice(stats.avg_order_value)} color="#000000" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-              <div className="lg:col-span-2 p-4 sm:p-5"
+            <motion.div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="lg:col-span-2 p-3 sm:p-5 overflow-hidden"
                 style={{
                   background: "rgba(255,255,255,0.6)",
                   border: "1px solid rgba(0,0,0,0.06)",
@@ -391,7 +522,7 @@ export function AdminPage() {
                 <BarChart data={stats.chart_14_days} valueKey="orders" color="#19B000" formatter={(v) => String(v)} />
               </div>
 
-              <div className="p-4 sm:p-5"
+              <div className="p-3 sm:p-5 overflow-hidden"
                 style={{
                   background: "rgba(255,255,255,0.6)",
                   border: "1px solid rgba(0,0,0,0.06)",
@@ -405,10 +536,14 @@ export function AdminPage() {
                 </h3>
                 <BarChart data={stats.chart_14_days} valueKey="revenue" color="#000000" formatter={(v) => `${(v / 1000).toFixed(1)}k`} />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div className="p-4 sm:p-5"
+            <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="p-3 sm:p-5"
                 style={{
                   background: "rgba(255,255,255,0.6)",
                   border: "1px solid rgba(0,0,0,0.06)",
@@ -473,7 +608,7 @@ export function AdminPage() {
                 )}
               </div>
 
-              <div className="p-4 sm:p-5"
+              <div className="p-3 sm:p-5"
                 style={{
                   background: "rgba(255,255,255,0.6)",
                   border: "1px solid rgba(0,0,0,0.06)",
@@ -483,13 +618,16 @@ export function AdminPage() {
                 <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"
                   style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
                 >
-                  <UtensilsCrossed size={15} color="#19B000" /> Repartition par categorie
+                  <UtensilsCrossed size={15} color="#19B000" /> Répartition par catégorie
                 </h3>
                 <CategoryPie data={stats.category_breakdown} />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="p-4 sm:p-5"
+            <motion.div className="p-3 sm:p-5"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 background: "rgba(255,255,255,0.6)",
                 border: "1px solid rgba(0,0,0,0.06)",
@@ -499,7 +637,7 @@ export function AdminPage() {
               <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"
                 style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
               >
-                <Clock size={15} color="#6B6357" /> Dernieres commandes
+                <Clock size={15} color="#6B6357" /> Dernières commandes
               </h3>
               {stats.recent_orders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 gap-2">
@@ -509,8 +647,8 @@ export function AdminPage() {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs" style={{ fontFamily: "Open Sans, sans-serif" }}>
+              <div className="overflow-x-auto -mx-4 sm:-mx-5 px-4 sm:px-5 pb-1">
+                <table className="w-full text-xs" style={{ fontFamily: "Open Sans, sans-serif", minWidth: "480px" }}>
                     <thead>
                       <tr className="text-left font-semibold"
                         style={{ color: "#6B6357", borderBottom: "1px solid rgba(0,0,0,0.08)" }}
@@ -542,7 +680,7 @@ export function AdminPage() {
                   </table>
                 </div>
               )}
-            </div>
+            </motion.div>
 
             <div className="flex justify-center pt-2">
               <a href="/admin" rel="noopener noreferrer"
@@ -555,7 +693,7 @@ export function AdminPage() {
                   boxShadow: "0 8px 32px rgba(25,176,0,0.3)",
                 }}
               >
-                <ExternalLink size={16} /> Gerer les plats, menus et parametres
+                <ExternalLink size={16} /> Gérer les plats, menus et paramètres
               </a>
             </div>
           </div>

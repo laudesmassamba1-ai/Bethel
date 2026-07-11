@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "motion/react";
 import {
-  ArrowRight, Sparkles, MessageCircle, ChevronDown, Beef, Pizza,
+  ArrowRight, Sparkles, ChevronDown, Beef, Pizza,
   Sandwich, CakeSlice, Coffee, UtensilsCrossed, Flame,
 } from "lucide-react";
 import { useSiteConfig } from "../context/SiteConfigContext";
 import { useCategories } from "../context/CategoriesContext";
 import { fetchPlats } from "../utils/api";
-import { formatPrice, getDisplayPrice, buildWhatsAppUrl } from "../utils/constants";
+import { formatPrice, getDisplayPrice } from "../utils/constants";
 import { LuxuryBackground } from "../components/3d/LuxuryBackground";
 import { ParticleField3D } from "../components/3d/ParticleField3D";
 import { FloatingIngredients3D } from "../components/3d/FloatingIngredients3D";
@@ -16,19 +16,19 @@ import { PlatDetailModal } from "../components/menu/PlatDetailModal";
 import type { MenuItem } from "../utils/constants";
 
 const FALLBACK_ITEMS: MenuItem[] = [
-  { id: 1, name: "Burger Classic", description: "Steak hache, salade, tomate, oignons, sauce maison", price: 3500, original_price: null, category: "Burgers", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=75", badge: "Populaire", is_promotion: false, promotion_prix: null, spicy: false, rating: 4.8, time: "15 min", menu_id: null },
-  { id: 2, name: "Double Cheese", description: "Double steak, cheddar fondant, bacon croustillant", price: 4500, original_price: 5000, category: "Burgers", image: "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400&q=75", badge: "Promo", is_promotion: true, promotion_prix: 4000, spicy: false, rating: 4.9, time: "18 min", menu_id: null },
-  { id: 3, name: "Burger BBQ", description: "Steak, bacon, oignons caramelises, sauce BBQ fumee", price: 4200, original_price: null, category: "Burgers", image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, rating: 4.7, time: "16 min", menu_id: null },
-  { id: 4, name: "Pizza Margherita", description: "Tomate, mozzarella, basilic frais, huile d'olive", price: 4000, original_price: null, category: "Pizzas", image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=75", badge: "Classique", is_promotion: false, promotion_prix: null, spicy: false, rating: 4.7, time: "20 min", menu_id: null },
-  { id: 5, name: "Pepperoni Pizza", description: "Sauce tomate, mozzarella, pepperoni genereux", price: 5000, original_price: null, category: "Pizzas", image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: true, rating: 4.6, time: "22 min", menu_id: null },
-  { id: 6, name: "Pizza 4 Fromages", description: "Mozzarella, chevre, emmental, parmesan, creme", price: 5500, original_price: null, category: "Pizzas", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=75", badge: "Chef", is_promotion: false, promotion_prix: null, spicy: false, rating: 4.8, time: "22 min", menu_id: null },
-  { id: 7, name: "Tacos Poulet", description: "Poulet grille, guacamole, fromage, salsa verte", price: 3000, original_price: null, category: "Tacos", image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=75", badge: "Nouveau", is_promotion: false, promotion_prix: null, spicy: false, rating: 4.5, time: "12 min", menu_id: null },
-  { id: 8, name: "Tacos Boeuf", description: "Boeuf epice, oignons, coriandre, sauce piquante", price: 3500, original_price: null, category: "Tacos", image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: true, rating: 4.8, time: "14 min", menu_id: null },
-  { id: 9, name: "Tacos Poisson", description: "Poisson grille, sauce citronnee, legumes croquants", price: 3200, original_price: null, category: "Tacos", image: "https://images.unsplash.com/photo-1611250188496-e966043a0629?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, rating: 4.4, time: "13 min", menu_id: null },
-  { id: 10, name: "Tiramisu", description: "Mascarpone, cafe, cacao, biscuits italiens", price: 2500, original_price: null, category: "Desserts", image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&q=75", badge: "Chef", is_promotion: false, promotion_prix: null, spicy: false, rating: 4.9, time: "5 min", menu_id: null },
-  { id: 11, name: "Brownie Chocolat", description: "Chocolat noir fondant, noix de pecan, glace vanille", price: 3000, original_price: null, category: "Desserts", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, rating: 4.7, time: "8 min", menu_id: null },
-  { id: 12, name: "Coca-Cola", description: "Coca-Cola glace 33cl", price: 1000, original_price: null, category: "Boissons", image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, rating: 4.0, time: "2 min", menu_id: null },
-  { id: 13, name: "Jus de Goyave", description: "Jus de goyave frais presse 33cl", price: 1500, original_price: null, category: "Boissons", image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=75", badge: "Frais", is_promotion: false, promotion_prix: null, spicy: false, rating: 4.3, time: "3 min", menu_id: null },
+  { id: 1, name: "Burger Classic", description: "Steak hache, salade, tomate, oignons, sauce maison", price: 3500, original_price: null, category: "Burgers", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=75", badge: "Populaire", is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 2, name: "Double Cheese", description: "Double steak, cheddar fondant, bacon croustillant", price: 4500, original_price: 5000, category: "Burgers", image: "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400&q=75", badge: "Promo", is_promotion: true, promotion_prix: 4000, spicy: false, menu_id: null },
+  { id: 3, name: "Burger BBQ", description: "Steak, bacon, oignons caramelises, sauce BBQ fumee", price: 4200, original_price: null, category: "Burgers", image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 4, name: "Pizza Margherita", description: "Tomate, mozzarella, basilic frais, huile d'olive", price: 4000, original_price: null, category: "Pizzas", image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=75", badge: "Classique", is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 5, name: "Pepperoni Pizza", description: "Sauce tomate, mozzarella, pepperoni genereux", price: 5000, original_price: null, category: "Pizzas", image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: true, menu_id: null },
+  { id: 6, name: "Pizza 4 Fromages", description: "Mozzarella, chevre, emmental, parmesan, creme", price: 5500, original_price: null, category: "Pizzas", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=75", badge: "Chef", is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 7, name: "Tacos Poulet", description: "Poulet grille, guacamole, fromage, salsa verte", price: 3000, original_price: null, category: "Tacos", image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=75", badge: "Nouveau", is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 8, name: "Tacos Boeuf", description: "Boeuf epice, oignons, coriandre, sauce piquante", price: 3500, original_price: null, category: "Tacos", image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: true, menu_id: null },
+  { id: 9, name: "Tacos Poisson", description: "Poisson grille, sauce citronnee, legumes croquants", price: 3200, original_price: null, category: "Tacos", image: "https://images.unsplash.com/photo-1611250188496-e966043a0629?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 10, name: "Tiramisu", description: "Mascarpone, cafe, cacao, biscuits italiens", price: 2500, original_price: null, category: "Desserts", image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&q=75", badge: "Chef", is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 11, name: "Brownie Chocolat", description: "Chocolat noir fondant, noix de pecan, glace vanille", price: 3000, original_price: null, category: "Desserts", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 12, name: "Coca-Cola", description: "Coca-Cola glace 33cl", price: 1000, original_price: null, category: "Boissons", image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
+  { id: 13, name: "Jus de Goyave", description: "Jus de goyave frais presse 33cl", price: 1500, original_price: null, category: "Boissons", image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=75", badge: "Frais", is_promotion: false, promotion_prix: null, spicy: false, menu_id: null },
 ];
 
 const CATEGORY_META: Record<string, { icon: React.ElementType; color: string }> = {
@@ -135,11 +135,10 @@ function PlateCard({
         className="relative overflow-hidden"
         style={{
           background: "#FFFFFF",
-          border: "1px solid rgba(0,0,0,0.06)",
+          border: "2.5px solid #000000",
           padding: 4,
           paddingBottom: nameSize * 3,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-          backdropFilter: "blur(8px)",
+          boxShadow: "3px 3px 0 #000000",
         }}
       >
         <img
@@ -192,32 +191,32 @@ function CategoryChip({
   return (
     <motion.button
       onClick={onClick}
-      className="flex items-center gap-2.5 px-5 py-3 cursor-pointer"
+      className="flex items-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2.5 sm:py-3 cursor-pointer flex-shrink-0"
       style={{
         fontFamily: "Montserrat, sans-serif",
-        background: isActive
-          ? "linear-gradient(135deg, rgba(25,176,0,0.12), rgba(25,176,0,0.04))"
-          : "rgba(255,255,255,0.8)",
-        color: isActive ? "#19B000" : "rgba(0,0,0,0.45)",
-        border: isActive ? "1px solid rgba(25,176,0,0.3)" : "1px solid rgba(0,0,0,0.08)",
-        borderRadius: 12,
-        backdropFilter: "blur(12px)",
-        boxShadow: isActive ? "0 4px 20px rgba(25,176,0,0.1)" : "0 1px 4px rgba(0,0,0,0.04)",
-        transition: "all 0.35s ease",
+        fontWeight: 700,
+        background: isActive ? "#19B000" : "#FFFFFF",
+        color: isActive ? "#FFFFFF" : "#000000",
+        border: "2.5px solid #000000",
+        borderRadius: 4,
+        boxShadow: isActive ? "3px 3px 0 #000000" : "3px 3px 0 #000000",
+        transition: "all 0.1s ease",
       }}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ scale: 1.06, y: -2, borderColor: "rgba(25,176,0,0.3)" }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ x: -1, y: -1, boxShadow: "5px 5px 0 #000000" }}
+      whileTap={{ x: 1, y: 1, boxShadow: "1px 1px 0 #000000" }}
     >
-      <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
-      <span className="text-xs font-bold tracking-wide">{cat}</span>
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+      <Icon size={18} strokeWidth={2.5} />
+      <span className="text-xs font-bold tracking-wide uppercase">{cat}</span>
+      <span className="text-[10px] font-bold px-1.5 py-0.5"
         style={{
-          background: isActive ? "rgba(25,176,0,0.15)" : "rgba(0,0,0,0.05)",
-          color: isActive ? "#19B000" : "rgba(0,0,0,0.3)",
+          background: isActive ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.06)",
+          color: isActive ? "#FFFFFF" : "#000000",
+          borderRadius: 2,
+          border: `1.5px solid ${isActive ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.15)"}`,
         }}>
         {count}
       </span>
@@ -225,18 +224,27 @@ function CategoryChip({
   );
 }
 
-function PlateMenuSection({ menuItems, onAddToCart }: {
-  menuItems: MenuItem[]; onAddToCart: (item: MenuItem) => void;
+function PlateMenuSection({ menuItems, onAddToCart, mostOrderedPlatId }: {
+  menuItems: MenuItem[]; onAddToCart: (item: MenuItem) => void; mostOrderedPlatId: number | null;
 }) {
   const { categories } = useCategories();
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const plateRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
 
-  const plateRadius = 280;
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const plateRadius = isMobile ? 140 : 280;
   const plateDiameter = plateRadius * 2;
-  const cardSize = Math.max(64, Math.min(100, plateRadius * 0.28));
+  const cardSize = Math.max(48, Math.min(100, plateRadius * 0.28));
 
   const filtered = useMemo(
     () => (activeCategory === "Tous" ? menuItems : menuItems.filter((i) => i.category === activeCategory)),
@@ -264,7 +272,7 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
   const handleMouseLeave = useCallback(() => setMousePos({ x: 0, y: 0 }), []);
 
   return (
-    <section id="menu" className="relative py-20 sm:py-28 px-4" style={{ background: "#FAFAF8" }}>
+    <section id="menu" className="relative py-14 sm:py-20 md:py-28 px-3 sm:px-4 scroll-mt-16" style={{ background: "#FAFAF8" }}>
       {/* Radial glow */}
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(25,176,0,0.04) 0%, transparent 60%)" }} />
@@ -295,7 +303,8 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
         </motion.div>
 
         {/* Category chips */}
-        <motion.div className="flex flex-wrap justify-center gap-3 mb-14"
+        <motion.div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-2.5 sm:gap-3 mb-10 sm:mb-14 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+          style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -320,81 +329,186 @@ function PlateMenuSection({ menuItems, onAddToCart }: {
           })}
         </motion.div>
 
-        {/* Plate */}
-        <motion.div
-          ref={plateRef}
-          className="relative mx-auto"
-          style={{
-            width: "100%",
-            maxWidth: plateDiameter + 40,
-            aspectRatio: `1 / 1`,
-            perspective: 1200,
-          }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          initial={{ opacity: 0, scale: 0.88 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div
-            className="absolute inset-0"
+        {/* Tout voir toggle */}
+        <div className="flex justify-center mb-6">
+          <motion.button
+            onClick={() => setShowGrid(!showGrid)}
+            className="flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase cursor-pointer"
             style={{
-              borderRadius: "50%",
-              transform: `perspective(1200px) rotateY(${mousePos.x * 2}deg) rotateX(${-mousePos.y * 2}deg)`,
-              transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
+              fontFamily: "Montserrat, sans-serif",
+              background: showGrid ? "#000000" : "#FFFFFF",
+              color: showGrid ? "#FFFFFF" : "#000000",
+              border: "2.5px solid #000000",
+              borderRadius: 4,
+              boxShadow: "3px 3px 0 #000000",
             }}
+            whileHover={{ x: -1, y: -1, boxShadow: "5px 5px 0 #000000" }}
+            whileTap={{ x: 1, y: 1, boxShadow: "1px 1px 0 #000000" }}
           >
-            {/* Light ceramic surface */}
-            <div className="absolute inset-0"
+            {showGrid ? (
+              <><UtensilsCrossed size={14} strokeWidth={2.5} /> Voir l'assiette</>
+            ) : (
+              <><Flame size={14} strokeWidth={2.5} /> Tout voir</>
+            )}
+          </motion.button>
+        </div>
+
+        {/* Plate — desktop + mobile when grid is off */}
+        {!showGrid && (
+          <motion.div
+            ref={plateRef}
+            className="relative mx-auto overflow-hidden"
+            style={{
+              width: "100%",
+              maxWidth: plateDiameter + 40,
+              aspectRatio: `1 / 1`,
+              perspective: 1200,
+            }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            initial={{ opacity: 0, scale: 0.88 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div
+              className="absolute inset-0 overflow-hidden"
               style={{
                 borderRadius: "50%",
-                background: "radial-gradient(circle at 42% 38%, #FFFFFF 0%, #FAFAFA 55%, #F0F0F0 78%, #E8E8E8 90%, #DDDDDD 100%)",
-                boxShadow: `
-                  inset 0 0 50px rgba(0,0,0,0.03),
-                  0 0 0 8px rgba(0,0,0,0.03),
-                  0 0 0 9px rgba(255,255,255,0.9),
-                  0 0 0 12px rgba(0,0,0,0.04),
-                  0 20px 60px rgba(0,0,0,0.1),
-                  0 8px 24px rgba(0,0,0,0.06)
-                `,
-              }} />
+                transform: `perspective(1200px) rotateY(${mousePos.x * 2}deg) rotateX(${-mousePos.y * 2}deg)`,
+                transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
+              }}
+            >
+              <div className="absolute inset-0"
+                style={{
+                  borderRadius: "50%",
+                  background: "radial-gradient(circle at 42% 38%, #FFFFFF 0%, #FAFAFA 55%, #F0F0F0 78%, #E8E8E8 90%, #DDDDDD 100%)",
+                  boxShadow: `
+                    inset 0 0 50px rgba(0,0,0,0.03),
+                    0 0 0 8px rgba(0,0,0,0.03),
+                    0 0 0 9px rgba(255,255,255,0.9),
+                    0 0 0 12px rgba(0,0,0,0.04),
+                    0 20px 60px rgba(0,0,0,0.1),
+                    0 8px 24px rgba(0,0,0,0.06)
+                  `,
+                }} />
+              <div className="absolute" style={{ inset: "7%", borderRadius: "50%", border: "1px solid rgba(0,0,0,0.04)" }} />
+              <div className="absolute" style={{ inset: "9%", borderRadius: "50%", border: "0.5px solid rgba(0,0,0,0.02)" }} />
+              <PlateDecorations radius={plateRadius} />
+              <AnimatePresence mode="popLayout">
+                {filtered.map((item, i) => (
+                  <PlateCard key={item.id} item={item} pos={positions[i]} cardSize={cardSize}
+                    index={i} onClick={() => setDetailItem(item)} />
+                ))}
+              </AnimatePresence>
+              {filtered.length === 0 && (
+                <motion.div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <UtensilsCrossed size={48} strokeWidth={1} color="rgba(0,0,0,0.1)" />
+                  <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "#9B9385" }}>
+                    Aucun plat dans cette categorie
+                  </p>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
 
-            {/* Inner rings */}
-            <div className="absolute" style={{ inset: "7%", borderRadius: "50%", border: "1px solid rgba(0,0,0,0.04)" }} />
-            <div className="absolute" style={{ inset: "9%", borderRadius: "50%", border: "0.5px solid rgba(0,0,0,0.02)" }} />
-
-            <PlateDecorations radius={plateRadius} />
-
-            <AnimatePresence mode="popLayout">
-              {filtered.map((item, i) => (
-                <PlateCard key={item.id} item={item} pos={positions[i]} cardSize={cardSize}
-                  index={i} onClick={() => setDetailItem(item)} />
-              ))}
-            </AnimatePresence>
-
+        {/* Mobile grid view — beautiful readable cards */}
+        {showGrid && (
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {filtered.map((item, i) => (
+              <motion.div
+                key={item.id}
+                className="relative cursor-pointer overflow-hidden"
+                style={{
+                  background: "#FFFFFF",
+                  border: "2.5px solid #000000",
+                  borderRadius: 4,
+                  boxShadow: "3px 3px 0 #000000",
+                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04, duration: 0.35 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setDetailItem(item)}
+              >
+                <div className="relative">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full block"
+                    style={{ aspectRatio: "1", objectFit: "cover", filter: "saturate(1.15) contrast(1.05)" }}
+                    loading="lazy"
+                  />
+                  {item.badge && (
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 text-[9px] font-bold tracking-wide"
+                      style={{
+                        background: item.is_promotion ? "#19B000" : "#000000",
+                        color: "#FFFFFF",
+                        fontFamily: "Montserrat, sans-serif",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                      }}>
+                      {item.badge}
+                    </div>
+                  )}
+                  {item.spicy && (
+                    <div className="absolute top-1.5 right-1.5 flex items-center justify-center"
+                      style={{
+                        width: 20, height: 20,
+                        background: "#DC2626", borderRadius: "50%",
+                      }}>
+                      <Flame size={12} color="#fff" strokeWidth={2.5} />
+                    </div>
+                  )}
+                </div>
+                <div className="p-2.5">
+                  <p className="text-xs font-bold leading-tight mb-0.5 truncate"
+                    style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}>
+                    {item.name}
+                  </p>
+                  <p className="text-[10px] leading-tight mb-1.5 line-clamp-2"
+                    style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
+                    {item.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-black"
+                      style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
+                      {formatPrice(getDisplayPrice(item))}
+                    </span>
+                    {item.original_price && (
+                      <span className="text-[9px] line-through"
+                        style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
+                        {formatPrice(item.original_price)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center mt-1.5">
+                    {item.id === mostOrderedPlatId && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5"
+                        style={{ fontFamily: "Montserrat, sans-serif", background: "#19B000", color: "#FFFFFF", borderRadius: 2 }}>
+                        Le plus commandé !
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
             {filtered.length === 0 && (
-              <motion.div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <div className="col-span-2 flex flex-col items-center justify-center py-16 gap-3">
                 <UtensilsCrossed size={48} strokeWidth={1} color="rgba(0,0,0,0.1)" />
                 <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "#9B9385" }}>
                   Aucun plat dans cette categorie
                 </p>
-              </motion.div>
+              </div>
             )}
-          </div>
-        </motion.div>
-
-        <motion.p className="text-center mt-8 text-xs"
-          style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}
-          key={activeCategory}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}>
-          {activeCategory === "Tous"
-            ? `${filtered.length} plats au total`
-            : `${filtered.length} plat${filtered.length > 1 ? "s" : ""} en ${activeCategory}`}
-        </motion.p>
+          </motion.div>
+        )}
       </div>
 
       <PlatDetailModal item={detailItem} onClose={() => setDetailItem(null)} onAdd={onAddToCart} />
@@ -416,20 +530,19 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 }
 
 interface Props {
-  activeCategory: string;
-  onCategoryChange: (cat: string) => void;
   onAddToCart: (item: MenuItem) => void;
 }
 
 export function HomePage({ onAddToCart }: Props) {
   const { config } = useSiteConfig();
   const [menuItems, setMenuItems] = useState<MenuItem[]>(FALLBACK_ITEMS);
+  const [mostOrderedPlatId, setMostOrderedPlatId] = useState<number | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 4000);
     fetchPlats(controller.signal)
-      .then((plats) => { clearTimeout(timer); if (plats.length > 0) setMenuItems(plats); })
+      .then((result) => { clearTimeout(timer); if (result.plats.length > 0) { setMenuItems(result.plats); setMostOrderedPlatId(result.mostOrderedPlatId); } })
       .catch(() => clearTimeout(timer));
     return () => { clearTimeout(timer); controller.abort(); };
   }, []);
@@ -437,7 +550,7 @@ export function HomePage({ onAddToCart }: Props) {
   return (
     <div className="relative overflow-hidden">
       {/* ═══ HERO ═══ */}
-      <section className="relative" style={{ height: "100vh", minHeight: 600 }}>
+      <section className="relative" style={{ minHeight: "max(550px, 100vh)" }}>
         <LuxuryBackground />
         <div className="absolute inset-0 z-[1] pointer-events-none">
           <ParticleField3D particleCount={1200} color="#19B000" accentColor="#FFFFFF" />
@@ -464,7 +577,7 @@ export function HomePage({ onAddToCart }: Props) {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
             <span style={{ color: "#19B000" }}>BETHEL</span>
             <br />
-            <span style={{ color: "#FFFFFF" }}>KITCHEN</span>
+            <span style={{ color: "#FFFFFF" }}>GRILL</span>
           </motion.h1>
 
           <motion.p className="text-sm sm:text-base max-w-sm text-center mb-8 leading-relaxed"
@@ -473,31 +586,24 @@ export function HomePage({ onAddToCart }: Props) {
             L'excellence du detail, la passion du gout.
           </motion.p>
 
-          <motion.div className="flex flex-col sm:flex-row items-center gap-3"
+           <motion.div className="flex flex-col sm:flex-row items-center gap-3"
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0, duration: 0.6 }}>
             <motion.a href="#menu"
-              className="flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-white"
+              className="flex items-center gap-2 px-8 py-3.5 text-sm font-extrabold text-white uppercase tracking-wide"
               style={{
-                background: "linear-gradient(135deg, #19B000, #0D8A00)", border: "none", borderRadius: 6,
-                cursor: "pointer", fontFamily: "Montserrat, sans-serif", textDecoration: "none",
-                boxShadow: "0 4px 20px rgba(25,176,0,0.3), 6px 6px 0 rgba(0,0,0,0.3)",
+                background: "#19B000",
+                border: "3px solid #000000",
+                borderRadius: 4,
+                cursor: "pointer",
+                fontFamily: "Montserrat, sans-serif",
+                textDecoration: "none",
+                boxShadow: "4px 4px 0 #000000",
+                transition: "box-shadow 0.1s, transform 0.1s",
               }}
-              whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-              <Sparkles size={15} /> Decouvrir le menu <ArrowRight size={15} />
-            </motion.a>
-            <motion.a
-              href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-8 py-3.5 text-sm font-bold"
-              style={{
-                background: "transparent", color: "#FFFFFF",
-                border: "1px solid rgba(255,255,255,0.2)", borderRadius: 6,
-                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
-              }}
-              whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}
-              whileTap={{ scale: 0.97 }}>
-              <MessageCircle size={15} /> Commander
+              whileHover={{ x: -2, y: -2, boxShadow: "6px 6px 0 #000000" }}
+              whileTap={{ x: 2, y: 2, boxShadow: "2px 2px 0 #000000" }}>
+              <Sparkles size={16} strokeWidth={2.5} /> Decouvrir le menu <ArrowRight size={16} strokeWidth={2.5} />
             </motion.a>
           </motion.div>
         </div>
@@ -517,52 +623,7 @@ export function HomePage({ onAddToCart }: Props) {
       </section>
 
       {/* ═══ PLATE MENU ═══ */}
-      <PlateMenuSection menuItems={menuItems} onAddToCart={onAddToCart} />
-
-      {/* ═══ CTA ═══ */}
-      <section className="relative py-20 sm:py-28 px-4 text-center"
-        style={{ background: "#FAFAF8" }}>
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(25,176,0,0.04) 0%, transparent 70%)" }} />
-        <Reveal>
-          <span className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block"
-            style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
-            Pret a savourer ?
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-black leading-tight mb-6"
-            style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}>
-            Commandez en <span style={{ color: "#19B000" }}>quelques clics</span>
-          </h2>
-          <p className="text-sm sm:text-base max-w-lg mx-auto mb-8 leading-relaxed"
-            style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}>
-            Discutez directement avec notre equipe via WhatsApp.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <motion.a
-              href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-white"
-              style={{
-                background: "#25D366", border: "none", borderRadius: 6, cursor: "pointer",
-                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
-                boxShadow: "0 4px 20px rgba(37,211,102,0.3), 6px 6px 0 rgba(0,0,0,0.3)",
-              }}
-              whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-              <MessageCircle size={15} /> WhatsApp
-            </motion.a>
-            <motion.a href="tel:+229000000000"
-              className="flex items-center gap-2 px-8 py-3.5 text-sm font-bold"
-              style={{
-                background: "transparent", color: "#000000",
-                border: "1px solid rgba(0,0,0,0.15)", borderRadius: 6,
-                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
-              }}
-              whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}>
-              Appeler
-            </motion.a>
-          </div>
-        </Reveal>
-      </section>
+      <PlateMenuSection menuItems={menuItems} onAddToCart={onAddToCart} mostOrderedPlatId={mostOrderedPlatId} />
     </div>
   );
 }

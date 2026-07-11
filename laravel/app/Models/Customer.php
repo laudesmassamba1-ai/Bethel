@@ -17,6 +17,13 @@ class Customer extends Model
         'last_order_at',
     ];
 
+    protected $casts = [
+        'order_count' => 'integer',
+        'total_spent' => 'integer',
+        'first_order_at' => 'datetime',
+        'last_order_at' => 'datetime',
+    ];
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

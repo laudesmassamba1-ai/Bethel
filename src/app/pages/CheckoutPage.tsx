@@ -39,6 +39,12 @@ export function CheckoutPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!name.trim()) {
+      setError("Veuillez entrer votre nom.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -49,7 +55,10 @@ export function CheckoutPage() {
         price: getDisplayPrice(item),
       }));
 
-      const result = await submitOrder(payload, cartTotal, whatsappMessage, name, phone);
+      const msgToSend = buildOrderMessage(cart, cartTotal, `${config.brand_name} ${config.brand_accent}`);
+      const urlToSend = buildWhatsAppUrl(msgToSend, config.whatsapp_number);
+
+      const result = await submitOrder(payload, cartTotal, msgToSend, name, phone);
       setOrderId(result.order_id);
 
       const consentCookie = document.cookie.includes("bethel-consent=true");
@@ -64,8 +73,9 @@ export function CheckoutPage() {
         colors: ["#19B000", "#000000", "#F5F1EA", "#25D366"],
       });
 
-      setTimeout(() => window.open(whatsappUrl, "_blank"), 300);
       clearCart();
+
+      setTimeout(() => window.open(urlToSend, "_blank"), 300);
       setStep("confirm");
     } catch (err: any) {
       setError(err.message || "Erreur lors de la commande. Réessayez.");
@@ -108,30 +118,34 @@ export function CheckoutPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#F5F1EA" }}>
         <motion.div
-          className="w-full max-w-md p-8 text-center"
+          className="w-full max-w-md p-5 sm:p-8 text-center"
           style={{
             background: "rgba(255,255,255,0.95)",
             borderRadius: "1rem",
             border: "1px solid rgba(25,176,0,0.2)",
             boxShadow: "0 24px 80px rgba(0,0,0,0.12)",
           }}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            initial={{ scale: 0, rotate: -30 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.15 }}
           >
             <CheckCircle size={64} color="#19B000" strokeWidth={1.5} className="mx-auto mb-4" />
           </motion.div>
 
-          <h1
+          <motion.h1
             className="text-2xl font-bold mb-2"
             style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
           >
             Commande confirmée !
-          </h1>
+          </motion.h1>
 
           {orderId && (
             <p className="text-sm mb-4" style={{ color: "#6B6357", fontFamily: "Open Sans, sans-serif" }}>
@@ -147,7 +161,7 @@ export function CheckoutPage() {
           </p>
 
           <div className="flex flex-col gap-3">
-            <a
+            <motion.a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -158,11 +172,15 @@ export function CheckoutPage() {
                 textDecoration: "none",
                 fontFamily: "Montserrat, sans-serif",
               }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.35 }}
+              whileTap={{ scale: 0.97 }}
             >
               <MessageCircle size={16} /> Rouvrir WhatsApp
-            </a>
+            </motion.a>
             {orderId && (
-              <a
+              <motion.a
                 href={`/ticket/${orderId}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -175,10 +193,19 @@ export function CheckoutPage() {
                   textDecoration: "none",
                   fontFamily: "Montserrat, sans-serif",
                 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.35 }}
+                whileTap={{ scale: 0.97 }}
               >
                 <Download size={16} /> Télécharger le ticket
-              </a>
+              </motion.a>
             )}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.35 }}
+            >
             <Link
               to="/"
               className="flex items-center justify-center gap-2 py-3 text-sm font-semibold"
@@ -192,6 +219,7 @@ export function CheckoutPage() {
             >
               <ArrowLeft size={16} /> Retour au menu
             </Link>
+            </motion.div>
           </div>
         </motion.div>
         <CookieConsentBanner visible={showConsent} onAccept={acceptConsent} onDecline={declineConsent} />
@@ -201,7 +229,7 @@ export function CheckoutPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#F5F1EA" }}>
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-sm font-semibold mb-6"
@@ -241,10 +269,11 @@ export function CheckoutPage() {
                   className="block text-xs font-semibold mb-1.5"
                   style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
                 >
-                  Votre nom
+                  Votre nom *
                 </label>
                 <input
                   type="text"
+                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Jean Dupont"
@@ -263,10 +292,11 @@ export function CheckoutPage() {
                   className="block text-xs font-semibold mb-1.5"
                   style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
                 >
-                  Téléphone
+                  Telephone *
                 </label>
                 <input
                   type="tel"
+                  required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Ex: 690 000 000"

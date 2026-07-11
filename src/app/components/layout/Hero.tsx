@@ -1,7 +1,6 @@
 import { lazy, Suspense, useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { ArrowRight, MessageCircle, Star, Clock } from "lucide-react";
-import { buildWhatsAppUrl } from "../../utils/constants";
+import { ArrowRight } from "lucide-react";
 import { useSiteConfig } from "../../context/SiteConfigContext";
 
 const LuxuryBackground = lazy(() =>
@@ -76,8 +75,8 @@ export function Hero() {
                 letterSpacing: "-0.02em",
               }}
             >
-              <span style={{ color: "#19B000" }}>BETHEL</span>{" "}
-              <span style={{ color: "#FFFFFF" }}>GRILL</span>
+              <span style={{ color: "#19B000" }}>{config.brand_name}</span>{" "}
+              <span style={{ color: "#FFFFFF" }}>{config.brand_accent}</span>
             </h1>
 
             <p
@@ -94,19 +93,12 @@ export function Hero() {
 
           {/* Rating strip */}
           <motion.div
-            className="flex items-center gap-6 text-sm"
+            className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm"
             style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Open Sans, sans-serif" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <span className="flex items-center gap-1.5">
-              <Star size={14} fill="#19B000" stroke="none" /> 4.9
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock size={14} stroke="#19B000" /> 25 min
-            </span>
-            <span style={{ color: "#19B000" }}>•</span>
             <span>{config.hero_subtitle}</span>
           </motion.div>
 
@@ -133,26 +125,6 @@ export function Hero() {
             >
               {config.hero_cta_label} <ArrowRight size={16} />
             </motion.button>
-
-            <motion.a
-              href={buildWhatsAppUrl(`Bonjour ${config.brand_name} ${config.brand_accent} !`, config.whatsapp_number)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-7 py-3.5 text-sm font-semibold"
-              style={{
-                background: "transparent",
-                color: "#FFFFFF",
-                fontFamily: "Montserrat, sans-serif",
-                border: "1px solid rgba(255,255,255,0.3)",
-                textDecoration: "none",
-                cursor: "pointer",
-                backdropFilter: "blur(20px) saturate(180%)",
-              }}
-              whileHover={{ scale: 1.04, y: -2, borderColor: "rgba(25,176,0,0.5)" }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <MessageCircle size={16} /> Nous contacter
-            </motion.a>
           </motion.div>
         </div>
 

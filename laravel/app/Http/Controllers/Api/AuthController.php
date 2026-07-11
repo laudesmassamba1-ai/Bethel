@@ -27,7 +27,10 @@ class AuthController extends Controller
         }
 
         $token = Str::random(80);
-        $user->forceFill(['api_token' => hash('sha256', $token)])->save();
+        $user->forceFill([
+            'api_token' => hash('sha256', $token),
+            'remember_token' => ($validated['remember'] ?? false) ? Str::random(60) : null,
+        ])->save();
 
         Auth::guard('web')->login($user, $validated['remember'] ?? false);
 
@@ -49,9 +52,9 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->forceFill(['api_token' => null])->save();
+        $request->user()->forceFill(['api_token' => null, 'remember_token' => null])->save();
         Auth::guard('web')->logout();
 
-        return response()->json(['message' => 'Déconnecté']);
+        return response()->json(['message' => 'Deconnecte']);
     }
 }

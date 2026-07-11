@@ -54,7 +54,7 @@ class TicketController extends Controller
             'loyaltyTier'    => $customer?->loyalty_tier,
             'loyaltyColor'   => $customer?->loyalty_color,
             'orderCount'     => $customer?->order_count,
-            'brandName'      => 'Bethel Kitchen',
+            'brandName'      => 'Bethel Grill',
             'whatsappMsg'    => $whatsappMsg,
             'nonce'          => $nonce,
         ])->render();

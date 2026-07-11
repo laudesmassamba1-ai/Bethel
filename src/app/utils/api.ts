@@ -4,7 +4,14 @@ const API_BASE = "/api";
 
 async function fetchJson<T>(url: string, signal?: AbortSignal, headers?: Record<string, string>): Promise<T> {
   const res = await fetch(`${API_BASE}${url}`, { signal, headers });
-  if (!res.ok) throw new Error(`Erreur API ${res.status}: ${res.statusText}`);
+  if (!res.ok) {
+    let msg = `Erreur API ${res.status}: ${res.statusText}`;
+    try {
+      const body = await res.json();
+      if (body?.message) msg = body.message;
+    } catch {}
+    throw new Error(msg);
+  }
   return res.json();
 }
 
@@ -20,8 +27,6 @@ export interface PlatDTO {
   is_promotion: boolean;
   promotion_prix: number | null;
   spicy: boolean;
-  rating: number;
-  time: string;
   menu_id: number | null;
 }
 
@@ -38,15 +43,13 @@ function toMenuItem(p: PlatDTO): MenuItem {
     is_promotion: p.is_promotion,
     promotion_prix: p.promotion_prix,
     spicy: p.spicy,
-    rating: p.rating,
-    time: p.time,
     menu_id: p.menu_id,
   };
 }
 
-export async function fetchPlats(signal?: AbortSignal): Promise<MenuItem[]> {
-  const json = await fetchJson<{ data: PlatDTO[] }>("/plats", signal);
-  return json.data.map(toMenuItem);
+export async function fetchPlats(signal?: AbortSignal): Promise<{ plats: MenuItem[]; mostOrderedPlatId: number | null }> {
+  const json = await fetchJson<{ data: PlatDTO[]; most_ordered_plat_id: number | null }>("/plats", signal);
+  return { plats: json.data.map(toMenuItem), mostOrderedPlatId: json.most_ordered_plat_id };
 }
 
 export interface MenuDTO {
@@ -124,3 +127,19 @@ export async function verifyCustomer(customerId: number, phone: string): Promise
     return null;
   }
 }
+
+export async function resetAllData(token: string): Promise<{ message: string; backup: string }> {
+  const res = await fetch(`${API_BASE}/stats/reset`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ confirm: "reset_all_data" }),
+  });
+  if (!res.ok) throw new Error(`Erreur reset ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
+

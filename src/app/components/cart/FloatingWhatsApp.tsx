@@ -22,7 +22,7 @@ export function FloatingWhatsApp() {
   return (
     <motion.button
       onClick={handleClick}
-      className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 font-black text-white text-xs sm:text-sm"
+      className="fixed bottom-20 sm:bottom-20 right-4 sm:right-6 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 font-black text-white text-xs sm:text-sm"
       style={{
         background: "#25D366",
         border: "3px solid #1D1D1D",

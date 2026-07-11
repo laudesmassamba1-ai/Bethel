@@ -1,6 +1,7 @@
-import { lazy, Suspense, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { AnimatePresence, motion } from "motion/react";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { SiteConfigProvider } from "./context/SiteConfigContext";
@@ -16,25 +17,66 @@ const LoginPage = lazy(() => import("./pages/LoginPage").then((m) => ({ default:
 const AdminPage = lazy(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage })));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })));
 
-function SuspenseFallback() {
+function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#F5F1EA" }}>
-      <div className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: "#19B000", borderTopColor: "transparent" }} />
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "#FAFAF8" }}>
+      <div className="relative w-12 h-12">
+        <div className="absolute inset-0 rounded-full" style={{ border: "3px solid rgba(25,176,0,0.1)" }} />
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            border: "3px solid transparent",
+            borderTopColor: "#19B000",
+            borderRightColor: "#19B000",
+            animation: "spin 0.8s cubic-bezier(0.68,-0.55,0.27,1.55) infinite",
+          }}
+        />
+      </div>
+      <p className="text-xs font-semibold tracking-widest uppercase" style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
+        Chargement
+      </p>
     </div>
   );
 }
 
+function PageTransition({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <PageTransition key={location.pathname}>
+        <Suspense fallback={<PageLoader />}>
+          <Routes location={location}>
+            <Route path="/" element={<HomePageWrapper />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<AdminPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </PageTransition>
+    </AnimatePresence>
+  );
+}
+
 function HomePageWrapper() {
-  const [activeCategory, setActiveCategory] = useState<string>("Tous");
   const { addToCart } = useCart();
 
   return (
     <RootLayout>
-      <HomePage
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        onAddToCart={(item: MenuItem) => addToCart(item)}
-      />
+      <HomePage onAddToCart={(item: MenuItem) => addToCart(item)} />
     </RootLayout>
   );
 }
@@ -43,13 +85,12 @@ function SEOHead() {
   return (
     <Helmet>
       <meta charSet="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#19B000" />
-      <meta name="description" content="Bethel Grill - Commandez vos grillades en ligne. Des saveurs authentiques." />
+      <meta name="description" content="Bethel Grill - Commandez vos plats en ligne. Des saveurs authentiques." />
       <meta property="og:title" content="Bethel Grill - Restaurant en ligne" />
       <meta property="og:description" content="Commandez vos plats préférés en ligne. Livraison rapide." />
       <meta property="og:type" content="website" />
-      <meta property="og:image" content="/dist/assets/og-image.png" />
       <meta name="robots" content="index, follow" />
       <link rel="canonical" href="https://bethelgrill.com" />
     </Helmet>
@@ -66,15 +107,7 @@ export default function App() {
               <AuthProvider>
                 <CategoriesProvider>
                   <SEOHead />
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <Routes>
-                      <Route path="/" element={<HomePageWrapper />} />
-                      <Route path="/checkout" element={<CheckoutPage />} />
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/dashboard" element={<AdminPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                  </Suspense>
+                  <AnimatedRoutes />
                 </CategoriesProvider>
               </AuthProvider>
             </CartProvider>

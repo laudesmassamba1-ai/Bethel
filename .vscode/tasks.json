@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Laravel: serve Bethel Kitchen",
+      "label": "Laravel: serve Bethel Grill",
       "type": "shell",
       "command": "cd /home/laudes/Téléchargements/Générateur\\ de\\ mots\\ croisés/laravel && php artisan serve --host=0.0.0.0 --port=8000",
       "isBackground": true,

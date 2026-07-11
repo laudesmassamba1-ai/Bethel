@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Modèle Eloquent `Plat`.
+ * Modele Eloquent `Plat`.
  *
- * Propriétés : `titre`, `prix`, `categorie`, `image`, `is_bestseller`.
+ * Proprietes : `titre`, `prix`, `categorie`, `image`, `is_bestseller`.
  */
 class Plat extends Model
 {
@@ -32,6 +32,8 @@ class Plat extends Model
     ];
 
     protected $casts = [
+        'prix' => 'integer',
+        'promotion_prix' => 'integer',
         'is_bestseller' => 'boolean',
         'is_promotion' => 'boolean',
         'is_spicy' => 'boolean',

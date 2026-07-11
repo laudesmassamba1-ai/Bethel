@@ -8,7 +8,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,11 +25,11 @@ export function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      await login(email, password, remember);
+      await login(email, password, rememberMe);
       navigate("/dashboard");
     } catch (err: any) {
       if (err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
-        setError("Impossible de contacter le serveur. Verifiez votre connexion.");
+        setError("Impossible de contacter le serveur. Vérifiez votre connexion.");
       } else {
         setError(err.message || "Email ou mot de passe incorrect");
       }
@@ -39,9 +39,9 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#000000" }}>
+    <div className="min-h-screen flex items-center justify-center px-3 sm:px-4" style={{ background: "#000000" }}>
       <div
-        className="w-full max-w-sm p-6 sm:p-8"
+        className="w-full max-w-sm p-5 sm:p-8"
         style={{
           background: "rgba(255,255,255,0.95)",
           borderRadius: "1rem",
@@ -71,14 +71,14 @@ export function LoginPage() {
                 letterSpacing: "0.06em",
               }}
             >
-              KITCHEN
+              GRILL
             </span>
           </div>
           <p
             className="text-sm"
             style={{ color: "#6B6357", fontFamily: "Open Sans, sans-serif" }}
           >
-            Connectez-vous pour gerer le site
+            Connectez-vous pour gérer le site
           </p>
         </div>
 
@@ -130,16 +130,18 @@ export function LoginPage() {
           />
 
           <label
-            className="flex items-center gap-2 text-xs font-semibold cursor-pointer select-none"
-            style={{ fontFamily: "Open Sans, sans-serif", color: "#333333" }}
+            className="flex items-center gap-2 cursor-pointer select-none"
+            style={{ fontFamily: "Open Sans, sans-serif" }}
           >
             <input
               type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              style={{ width: 16, height: 16, accentColor: "#19B000" }}
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded accent-[#19B000] cursor-pointer"
             />
-            Se souvenir de moi
+            <span className="text-xs font-semibold" style={{ color: "#6B6357" }}>
+              Se souvenir de moi
+            </span>
           </label>
 
           <button
@@ -156,7 +158,7 @@ export function LoginPage() {
             }}
           >
             {loading ? (
-              <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent" style={{ animation: "spin-smooth 0.6s linear infinite" }} />
             ) : (
               <LogIn size={16} />
             )}

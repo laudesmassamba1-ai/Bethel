@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Star, Clock, Flame, ShoppingBag, Sparkles, Tag } from "lucide-react";
+import { Flame, ShoppingBag, Sparkles, Tag } from "lucide-react";
 import { toast } from "sonner";
 import type { MenuItem } from "../../utils/constants";
 import { formatPrice, getDisplayPrice } from "../../utils/constants";
@@ -125,13 +125,6 @@ export function MenuItemCard({ item, onAdd, onDetail, index }: Props) {
         </p>
 
         {/* Meta row */}
-        <div className="flex items-center gap-3 text-xs" style={{ fontFamily: "Open Sans, sans-serif" }}>
-          <span className="flex items-center gap-1 font-semibold" style={{ color: "#19B000" }}>
-            <Star size={12} fill="#19B000" stroke="none" /> {item.rating}
-          </span>
-          <span className="flex items-center gap-1" style={{ color: "#6B6357" }}>
-            <Clock size={12} /> {item.time}
-          </span>
         </div>
 
         {/* Price + Add button */}

@@ -6,6 +6,9 @@ use App\Models\Plat;
 use App\Models\Menu;
 use App\Models\User;
 use App\Models\SiteConfig;
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
 
@@ -15,6 +18,12 @@ class DatabaseSeeder extends Seeder
     {
         User::updateOrCreate(['email' => 'admin@bethel.test'], [
             'name' => 'Admin Bethel',
+            'password' => Hash::make('password123'),
+            'is_admin' => true,
+        ]);
+
+        User::updateOrCreate(['email' => 'extends08@gmail.com'], [
+            'name' => 'laudes',
             'password' => Hash::make('password123'),
             'is_admin' => true,
         ]);
@@ -53,6 +62,10 @@ class DatabaseSeeder extends Seeder
             ['nom' => 'Menu du chef', 'description' => 'Une sélection maison avec nos plats signatures.', 'is_active' => true],
             ['nom' => 'Menu rafraîchissant', 'description' => 'Boissons et desserts pour clore le repas en beauté.', 'is_active' => true],
             ['nom' => 'Menu grillade', 'description' => 'Le meilleur du bœuf et du poulet braisé.', 'is_active' => true],
+            ['nom' => 'ma selection', 'description' => '', 'is_active' => true],
+            ['nom' => 'Maman', 'description' => '', 'is_active' => true],
+            ['nom' => 'Ronald', 'description' => '', 'is_active' => true],
+            ['nom' => 'LuLu', 'description' => '', 'is_active' => true],
         ];
 
         foreach ($menus as $menuData) {
@@ -77,10 +90,10 @@ class DatabaseSeeder extends Seeder
         SiteConfig::updateOrCreate(['id' => 1], [
             'brand_name' => 'BETHEL',
             'brand_accent' => 'GRILL',
-            'hero_subtitle' => 'Grillades premium & saveurs authentiques',
+            'hero_subtitle' => 'Grillades  & saveurs authentiques',
             'hero_title' => 'L\'excellence du détail, la passion du goût.',
-            'hero_copy' => 'Découvrez nos grillades premium, commandez en direct et recevez une expérience culinaire unique.',
-            'whatsapp_number' => '237690788315',
+            'hero_copy' => 'Découvrez nos grillades , commandez en direct et recevez une expérience culinaire unique.',
+            'whatsapp_number' => '+242050970202',
             'hero_cta_label' => 'Voir le menu',
             'cart_open_label' => 'Voir mon panier',
             'menu_section_label' => 'NOS SECTIONS',
@@ -91,5 +104,32 @@ class DatabaseSeeder extends Seeder
             'cart_header' => 'Total',
             'cart_checkout_label' => 'Commander via WhatsApp',
         ]);
+
+        $customers = [
+            ['name' => 'oooo', 'phone' => '7777', 'email' => null, 'order_count' => 7, 'total_spent' => 131500, 'first_order_at' => '2026-07-10 11:35:33', 'last_order_at' => '2026-07-11 12:07:29'],
+            ['name' => 'Laudes', 'phone' => '057612645', 'email' => null, 'order_count' => 4, 'total_spent' => 44000, 'first_order_at' => '2026-07-11 16:49:14', 'last_order_at' => '2026-07-11 17:42:19'],
+            ['name' => 'Pamela', 'phone' => '057717777', 'email' => null, 'order_count' => 1, 'total_spent' => 12000, 'first_order_at' => '2026-07-11 18:55:41', 'last_order_at' => '2026-07-11 18:55:41'],
+        ];
+
+        foreach ($customers as $c) {
+            Customer::updateOrCreate(['phone' => $c['phone']], $c);
+        }
+
+        $orders = [
+            ['customer_name' => 'oooo', 'customer_phone' => '7777', 'total_amount' => 2500, 'status' => 'terminee', 'customer_id' => 1, 'cart_payload' => '[{"id":14,"title":"Limonade Dorée","quantity":1,"price":2500}]', 'whatsapp_message' => 'Bonjour BETHEL GRILL ! Je souhaite passer la commande suivante :\n\n- Limonade Dorée x1  (2 500 FCFA)\n\nTotal : 2 500 FCFA\n\nMerci !'],
+            ['customer_name' => 'oooo', 'customer_phone' => '7777', 'total_amount' => 20000, 'status' => 'terminee', 'customer_id' => 1, 'cart_payload' => '[{"id":14,"title":"Limonade Dorée","quantity":2,"price":2500},{"id":16,"title":"Molten Choco Bomb","quantity":1,"price":4500},{"id":15,"title":"Jus de Bissap","quantity":1,"price":2000},{"id":9,"title":"Spicy Grilled Burger","quantity":1,"price":8500}]', 'whatsapp_message' => ''],
+            ['customer_name' => 'oooo', 'customer_phone' => '7777', 'total_amount' => 40500, 'status' => 'terminee', 'customer_id' => 1, 'cart_payload' => '[{"id":3,"title":"Brochette de Bœuf Mariné","quantity":3,"price":7500},{"id":4,"title":"Poulet Braisé Sauce Arachide","quantity":1,"price":9500},{"id":8,"title":"BBQ Bacon Stack","quantity":1,"price":8500}]', 'whatsapp_message' => ''],
+            ['customer_name' => 'oooo', 'customer_phone' => '7777', 'total_amount' => 4000, 'status' => 'terminee', 'customer_id' => 1, 'cart_payload' => '[{"id":18,"title":"mitard","quantity":1,"price":4000}]', 'whatsapp_message' => ''],
+            ['customer_name' => 'Laudes', 'customer_phone' => '057612645', 'total_amount' => 14000, 'status' => 'terminee', 'customer_id' => 2, 'cart_payload' => '[{"id":15,"title":"Jus de Bissap","quantity":7,"price":2000}]', 'whatsapp_message' => ''],
+            ['customer_name' => 'Laudes', 'customer_phone' => '057612645', 'total_amount' => 8000, 'status' => 'terminee', 'customer_id' => 2, 'cart_payload' => '[{"id":15,"title":"Jus de Bissap","quantity":4,"price":2000}]', 'whatsapp_message' => ''],
+            ['customer_name' => 'Pamela', 'customer_phone' => '057717777', 'total_amount' => 12000, 'status' => 'en_attente', 'customer_id' => 3, 'cart_payload' => '[{"id":1,"title":"Grillade de Bœuf BBQ","quantity":1,"price":12000}]', 'whatsapp_message' => ''],
+        ];
+
+        foreach ($orders as $o) {
+            Order::updateOrCreate(
+                ['customer_phone' => $o['customer_phone'], 'total_amount' => $o['total_amount']],
+                $o
+            );
+        }
     }
 }

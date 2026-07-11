@@ -32,7 +32,6 @@ class PlatResource extends JsonResource
             'is_promotion' => (bool) $this->is_promotion,
             'promotion_prix' => $this->is_promotion ? (int) ($this->promotion_prix ?? $this->prix) : null,
             'spicy' => (bool) $this->is_spicy,
-            'rating' => (float) ($this->rating ?? 4.8),
             'time' => ($this->temps ?? 15) . ' min',
             'menu_id' => $this->menu_id,
         ];

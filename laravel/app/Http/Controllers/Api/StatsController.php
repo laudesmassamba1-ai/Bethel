@@ -40,17 +40,24 @@ class StatsController extends Controller
             ->groupBy('plat_id')
             ->orderByDesc('total_qty')
             ->limit(5)
-            ->get()
-            ->map(function ($item) {
-                $plat = Plat::find($item->plat_id);
-                return [
-                    'id' => $item->plat_id,
-                    'name' => $plat?->titre ?? 'Plat supprime',
-                    'total_qty' => (int) $item->total_qty,
-                ];
-            });
+            ->get();
 
-        $recentOrders = Order::where('status', 'terminee')
+        $platIds = $topPlats->pluck('plat_id')->unique()->values()->all();
+        $platsMap = $platIds
+            ? Plat::whereIn('id', $platIds)->get()->keyBy('id')
+            : collect();
+
+        $topPlats = $topPlats->map(function ($item) use ($platsMap) {
+            $plat = $platsMap->get($item->plat_id);
+            return [
+                'id' => $item->plat_id,
+                'name' => $plat?->titre ?? 'Plat supprime',
+                'total_qty' => (int) $item->total_qty,
+            ];
+        });
+
+        $recentOrders = Order::withCount('items')
+            ->where('status', 'terminee')
             ->latest()
             ->take(10)
             ->get()
@@ -59,7 +66,7 @@ class StatsController extends Controller
                 'customer_name' => $o->customer_name,
                 'customer_phone' => $o->customer_phone,
                 'total_amount' => (int) $o->total_amount,
-                'items_count' => $o->items()->count(),
+                'items_count' => $o->items_count,
                 'created_at' => $o->created_at->toISOString(),
             ]);
 

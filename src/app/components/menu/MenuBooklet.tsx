@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronLeft, ChevronRight, Star, UtensilsCrossed } from "lucide-react";
+import { ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
 import type { MenuItem } from "../../utils/constants";
 import { formatPrice, getDisplayPrice } from "../../utils/constants";
 import { PlatDetailModal } from "./PlatDetailModal";
@@ -521,15 +521,6 @@ function CategoryPage({
                       }}
                     >
                       {item.badge}
-                    </span>
-                  )}
-                  {item.rating && (
-                    <span
-                      className="flex items-center gap-0.5 text-[10px]"
-                      style={{ fontFamily: "Open Sans, sans-serif", color: "#6B6357" }}
-                    >
-                      <Star size={10} fill="#FFD700" stroke="none" />
-                      {item.rating}
                     </span>
                   )}
                 </div>

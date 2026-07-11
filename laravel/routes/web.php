@@ -33,5 +33,5 @@ Route::fallback(function () {
         return response(file_get_contents($path))
             ->header('Content-Type', 'text/html');
     }
-    return redirect()->to('http://localhost:5173' . request()->getRequestUri());
+    return redirect()->to(env('APP_URL', '/') . request()->getRequestUri());
 });

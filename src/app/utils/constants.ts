@@ -10,8 +10,6 @@ export interface MenuItem {
   is_promotion?: boolean;
   promotion_prix?: number | null;
   spicy?: boolean;
-  rating: number;
-  time: string;
   menu_id: number | null;
 }
 

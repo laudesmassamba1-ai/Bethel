@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Une erreur est survenue
             </h1>
             <p className="text-sm mb-4" style={{ color: "#6B6357", fontFamily: "Open Sans, sans-serif" }}>
-              {this.state.error?.message || "Erreur inattendue"}
+              {import.meta.env.PROD ? "Une erreur inattendue s'est produite." : (this.state.error?.message || "Erreur inattendue")}
             </p>
             <button
               onClick={() => window.location.reload()}

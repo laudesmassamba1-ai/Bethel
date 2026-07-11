@@ -25,7 +25,7 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
         transition: "all 0.5s ease",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 flex items-center justify-between h-12 sm:h-14">
         <motion.div
           className="flex items-center gap-1 select-none"
           initial={{ opacity: 0, x: -10 }}
@@ -53,7 +53,7 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
               transition: "color 0.5s ease",
             }}
           >
-            KITCHEN
+            GRILL
           </span>
         </motion.div>
 
@@ -62,49 +62,53 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             href={buildWhatsAppUrl("Bonjour ! Je souhaite plus d'informations.", config.whatsapp_number)}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase"
             style={{
               color: "#000000",
-              background: "transparent",
-              border: "1px solid rgba(0,0,0,0.12)",
+              background: "#FFFFFF",
+              border: "2px solid #000000",
               textDecoration: "none",
               fontFamily: "Montserrat, sans-serif",
+              boxShadow: "2px 2px 0 #000000",
             }}
-            whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}
+            whileHover={{ x: -1, y: -1, boxShadow: "3px 3px 0 #000000" }}
+            whileTap={{ x: 1, y: 1, boxShadow: "1px 1px 0 #000000" }}
           >
-            <MessageCircle size={13} /> WhatsApp
+            <MessageCircle size={13} strokeWidth={2.5} /> WhatsApp
           </motion.a>
 
           <motion.a
             href="/dashboard"
-            className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold"
+            className="hidden sm:flex items-center justify-center w-7 h-7"
             style={{
-              color: "rgba(0,0,0,0.45)",
+              color: "#6B6357",
               background: "transparent",
-              border: "1px solid rgba(0,0,0,0.12)",
+              border: "none",
               textDecoration: "none",
               fontFamily: "Montserrat, sans-serif",
+              opacity: 0.3,
             }}
-            whileHover={{ color: "#19B000", borderColor: "rgba(25,176,0,0.5)" }}
+            whileHover={{ opacity: 1 }}
+            title="Administration"
           >
-            <Shield size={13} />
-            Admin
+            <Shield size={14} strokeWidth={1.5} />
           </motion.a>
 
           <motion.button
             onClick={onCartOpen}
-            className="relative flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold"
+            className="relative flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase"
             style={{
-              background: "linear-gradient(135deg, #19B000, #0D8A00)",
+              background: "#19B000",
               color: "#FFFFFF",
-              border: "none",
+              border: "2px solid #000000",
               cursor: "pointer",
               fontFamily: "Montserrat, sans-serif",
+              boxShadow: "2px 2px 0 #000000",
             }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ x: -1, y: -1, boxShadow: "3px 3px 0 #000000" }}
+            whileTap={{ x: 1, y: 1, boxShadow: "1px 1px 0 #000000" }}
           >
-            <ShoppingCart size={14} />
+            <ShoppingCart size={14} strokeWidth={2.5} />
             {cartCount > 0 && (
               <motion.span
                 key={cartCount}
@@ -125,15 +129,16 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden flex items-center justify-center w-8 h-8"
             style={{
-              border: "1px solid rgba(0,0,0,0.12)",
+              border: "2px solid #000000",
               color: "#000000",
-              background: "transparent",
+              background: "#FFFFFF",
               cursor: "pointer",
+              boxShadow: "2px 2px 0 #000000",
             }}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ x: 1, y: 1, boxShadow: "1px 1px 0 #000000" }}
             aria-label="Menu"
           >
-            <MenuIcon size={16} />
+            <MenuIcon size={16} strokeWidth={2.5} />
           </motion.button>
         </div>
       </div>
@@ -156,27 +161,31 @@ export function Navbar({ scrolled, cartCount, onCartOpen }: Props) {
                 href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase"
                 style={{
                   color: "#000000",
-                  border: "1px solid rgba(0,0,0,0.1)",
+                  background: "#FFFFFF",
+                  border: "2px solid #000000",
                   fontFamily: "Montserrat, sans-serif",
                   textDecoration: "none",
+                  boxShadow: "2px 2px 0 #000000",
                 }}
               >
-                <MessageCircle size={14} /> WhatsApp
+                <MessageCircle size={14} strokeWidth={2.5} /> WhatsApp
               </a>
               <a
                 href="/dashboard"
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase"
                 style={{
-                  color: "rgba(0,0,0,0.5)",
-                  border: "1px solid rgba(0,0,0,0.1)",
+                  color: "#000000",
+                  background: "#FFFFFF",
+                  border: "2px solid #000000",
                   fontFamily: "Montserrat, sans-serif",
                   textDecoration: "none",
+                  boxShadow: "2px 2px 0 #000000",
                 }}
               >
-                <Shield size={14} /> Administrateur
+                <Shield size={14} strokeWidth={2.5} /> Administration
               </a>
             </div>
           </motion.div>

@@ -27,7 +27,7 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
   return (
     <AnimatePresence>
       {open && (
-        <>
+        <motion.div key="cart-drawer-root">
           <motion.div
             className="fixed inset-0 z-40"
             style={{ background: "rgba(0,0,0,0.5)" }}
@@ -64,8 +64,8 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
               </div>
               <div className="flex items-center gap-2">
                 {cart.length > 0 && (
-                  <button
-                    onClick={onClear}
+                    <button
+                      onClick={() => { if (window.confirm("Voulez-vous vraiment vider le panier ?")) onClear(); }}
                     className="w-8 h-8 flex items-center justify-center"
                     style={{
                       border: "1px solid rgba(0,0,0,0.12)",
@@ -139,7 +139,7 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
                       />
                       <div className="flex-1 min-w-0">
                         <p
-                          className="font-semibold text-sm leading-tight"
+                          className="font-semibold text-sm leading-tight truncate"
                           style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}
                         >
                           {item.name}
@@ -237,7 +237,7 @@ export function CartDrawer({ open, cart, cartTotal, onClose, onAdd, onRemove, on
               </motion.div>
             )}
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );

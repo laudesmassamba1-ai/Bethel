@@ -1,4 +1,6 @@
 import { useState, useEffect, type ReactNode } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { ArrowUp } from "lucide-react";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { CartDrawer } from "../components/cart/CartDrawer";
@@ -26,7 +28,7 @@ export function RootLayout({ children, hideNav, hideFooter }: Props) {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ fontFamily: "Montserrat, sans-serif", background: "#FAFAF8" }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ fontFamily: "Montserrat, sans-serif", background: "#FAFAF8" }}>
       <ToasterProvider />
 
       {!hideNav && (
@@ -60,6 +62,8 @@ export function RootLayout({ children, hideNav, hideFooter }: Props) {
         onOpen={() => setCartOpen(true)}
       />
 
+      <ScrollToTop />
+
       <style>{`
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #F0F0EE; }
@@ -74,5 +78,42 @@ export function RootLayout({ children, hideNav, hideFooter }: Props) {
         }
       `}</style>
     </div>
+  );
+}
+
+function ScrollToTop() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center w-10 h-10"
+          style={{
+            background: "#000000",
+            color: "#FFFFFF",
+            border: "none",
+            borderRadius: "50%",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+          }}
+          initial={{ opacity: 0, scale: 0.8, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 10 }}
+          whileHover={{ scale: 1.1, y: -2 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="Retour en haut"
+        >
+          <ArrowUp size={18} />
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 }

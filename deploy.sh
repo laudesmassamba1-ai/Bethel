@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "=== Deploiement Bethel Kitchen ==="
+echo "=== Deploiement Bethel Grill ==="
 
 # 1. Build le frontend
 echo "-> Build React..."

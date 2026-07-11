@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, Star, Clock, Flame, ShoppingBag, Sparkles, Tag } from "lucide-react";
+import { X, Flame, ShoppingBag, Sparkles, Tag } from "lucide-react";
 import type { MenuItem } from "../../utils/constants";
 import { formatPrice, getDisplayPrice } from "../../utils/constants";
 import { ImageWithFallback } from "../shared/ImageWithFallback";
@@ -15,9 +15,8 @@ interface Props {
 export function PlatDetailModal({ item, onClose, onAdd }: Props) {
   const [justAdded, setJustAdded] = useState(false);
 
-  if (!item) return null;
-
   const handleAdd = () => {
+    if (!item) return;
     onAdd(item);
     setJustAdded(true);
     const displayPrice = getDisplayPrice(item);
@@ -29,7 +28,8 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
+      {item && (
       <motion.div
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         initial={{ opacity: 0 }}
@@ -151,15 +151,6 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-sm" style={{ fontFamily: "Open Sans, sans-serif" }}>
-              <span className="flex items-center gap-1 font-semibold" style={{ color: "#19B000" }}>
-                <Star size={14} fill="#19B000" stroke="none" /> {item.rating}
-              </span>
-              <span className="flex items-center gap-1" style={{ color: "#6B6357" }}>
-                <Clock size={14} /> {item.time}
-              </span>
-            </div>
-
             <div
               className="p-3 text-sm leading-relaxed"
               style={{
@@ -199,6 +190,7 @@ export function PlatDetailModal({ item, onClose, onAdd }: Props) {
           </div>
         </motion.div>
       </motion.div>
+      )}
     </AnimatePresence>
   );
 }

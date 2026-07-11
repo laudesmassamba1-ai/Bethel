@@ -22,7 +22,10 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'total_amount' => 'integer',
         'cart_payload' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function items(): HasMany

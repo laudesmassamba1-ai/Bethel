@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\PlatController;
+use App\Http\Controllers\Api\ResetDataController;
 use App\Http\Controllers\Api\SiteConfigController;
 use App\Http\Controllers\Api\StatsController;
+use App\Http\Controllers\Api\StatsPdfController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Session\Middleware\StartSession;
@@ -17,7 +21,8 @@ Route::get('/plats/{plat}', [PlatController::class, 'show']);
 Route::get('/menus', [MenuController::class, 'index']);
 Route::get('/config', [SiteConfigController::class, 'index']);
 Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:5,1');
-Route::get('/customer/verify', [CustomerController::class, 'verify']);
+Route::get('/customer/verify', [CustomerController::class, 'verify'])->middleware('throttle:10,1');
+Route::get('/health', [HealthController::class, 'index']);
 
 Route::post('/login', [AuthController::class, 'login'])->middleware([
     'throttle:5,60',
@@ -26,9 +31,11 @@ Route::post('/login', [AuthController::class, 'login'])->middleware([
     StartSession::class,
 ]);
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'token.valid'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/stats', [StatsController::class, 'index']);
+    Route::post('/stats/reset', ResetDataController::class)->middleware([EnsureIsAdmin::class, 'throttle:1,60']);
+    Route::get('/stats/pdf', [StatsPdfController::class, 'export'])->middleware(EnsureIsAdmin::class);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware([
         EncryptCookies::class,
         AddQueuedCookiesToResponse::class,
