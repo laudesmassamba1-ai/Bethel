@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useInView } from "motion/react";
+import { motion, useInView } from "motion/react";
 import {
   ArrowRight, Sparkles, Star, Clock, Flame,
-  ChefHat, MapPin, Phone, MessageCircle, X, ChevronDown,
+  ChefHat, MapPin, Phone, MessageCircle, ChevronDown,
 } from "lucide-react";
-import { useCategories } from "../context/CategoriesContext";
-import { BookMenu } from "../components/menu/BookMenu";
-import { useCart } from "../context/CartContext";
 import { useSiteConfig } from "../context/SiteConfigContext";
 import { fetchPlats } from "../utils/api";
 import { formatPrice, getDisplayPrice, buildWhatsAppUrl } from "../utils/constants";
+import { LuxuryBackground } from "../components/3d/LuxuryBackground";
+import { ParticleField3D } from "../components/3d/ParticleField3D";
+import { FloatingIngredients3D } from "../components/3d/FloatingIngredients3D";
+import { PlatDetailModal } from "../components/menu/PlatDetailModal";
 import type { MenuItem } from "../utils/constants";
 
 const FALLBACK_ITEMS: MenuItem[] = [
@@ -23,14 +24,20 @@ const FALLBACK_ITEMS: MenuItem[] = [
   { id: 8, name: "Coca-Cola", description: "Coca-Cola glace 33cl", price: 1000, original_price: null, category: "Boissons", image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=75", badge: undefined, is_promotion: false, promotion_prix: null, spicy: false, rating: 4.0, time: "2 min", menu_id: null },
 ];
 
-/* ─── Video URLs (free stock cooking/grill videos) ─── */
-const HERO_VIDEO = "https://videos.pexels.com/video-files/3296396/3296396-uhd_2560_1440_25fps.mp4";
-const CTA_VIDEO = "https://videos.pexels.com/video-files/3195394/3195394-uhd_2560_1440_25fps.mp4";
+const SCATTER = [
+  { r: -8, tx: 0, ty: 0 },
+  { r: 5, tx: 10, ty: -20 },
+  { r: -3, tx: -15, ty: 10 },
+  { r: 9, tx: 5, ty: -5 },
+  { r: -6, tx: -8, ty: 15 },
+  { r: 4, tx: 12, ty: -10 },
+  { r: -10, tx: -5, ty: 5 },
+  { r: 7, tx: 8, ty: -15 },
+];
 
-/* ─── Section Reveal wrapper ─── */
 function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
     <motion.div
       ref={ref}
@@ -44,137 +51,91 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-/* ─── Featured Dish Card ─── */
-function DishCard({ item, index, onAdd }: { item: MenuItem; index: number; onAdd: () => void }) {
+function ScatteredPhoto({ item, index, onClick }: { item: MenuItem; index: number; onClick: () => void }) {
+  const s = SCATTER[index % SCATTER.length];
+  const col = index % 4;
+  const row = Math.floor(index / 4);
   return (
-    <Reveal delay={index * 0.1}>
-      <motion.div
-        className="group relative overflow-hidden cursor-pointer"
+    <motion.div
+      className="absolute cursor-pointer"
+      style={{
+        width: "clamp(130px, 20vw, 190px)",
+        zIndex: index + 1,
+        left: `calc(${8 + col * 23}% + ${s.tx}px)`,
+        top: `calc(${row * 55 + 8}% + ${s.ty}px)`,
+      }}
+      initial={{ opacity: 0, scale: 0.6, rotate: s.r * 2 }}
+      whileInView={{ opacity: 1, scale: 1, rotate: s.r }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ delay: index * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{
+        scale: 1.15,
+        rotate: 0,
+        zIndex: 50,
+        y: -20,
+        transition: { duration: 0.3, ease: "easeOut" },
+      }}
+      whileTap={{ scale: 1.05 }}
+      onClick={onClick}
+    >
+      <img
+        src={item.image}
+        alt={item.name}
+        className="w-full h-auto block"
         style={{
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          borderRadius: 8,
+          aspectRatio: "1",
+          objectFit: "cover",
+          borderRadius: 4,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3)",
+          filter: "saturate(0.85) contrast(1.05) brightness(0.95)",
         }}
-        whileHover={{ y: -6, borderColor: "rgba(25,176,0,0.3)" }}
-        transition={{ duration: 0.3 }}
+        loading="lazy"
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0 px-2 py-1.5 opacity-0 transition-opacity duration-300"
+        style={{
+          background: "linear-gradient(transparent, rgba(0,0,0,0.7))",
+          borderRadius: "0 0 4px 4px",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
       >
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={item.image}
-            alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          {item.badge && (
-            <span
-              className="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase"
-              style={{
-                background: item.is_promotion ? "#E53E30" : "#19B000",
-                color: "#fff",
-                borderRadius: 4,
-                fontFamily: "Montserrat, sans-serif",
-              }}
-            >
-              {item.badge}
-            </span>
-          )}
-        </div>
-        <div className="p-4">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3
-              className="text-sm font-bold leading-tight"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#fff" }}
-            >
-              {item.name}
-            </h3>
-            <span
-              className="text-sm font-bold whitespace-nowrap"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}
-            >
-              {formatPrice(getDisplayPrice(item))}
-            </span>
-          </div>
-          <p
-            className="text-xs leading-relaxed mb-3 line-clamp-2"
-            style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.5)" }}
-          >
-            {item.description}
-          </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {item.rating && (
-                <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>
-                  <Star size={11} fill="#FFD700" stroke="none" /> {item.rating}
-                </span>
-              )}
-              {item.time && (
-                <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  <Clock size={11} /> {item.time}
-                </span>
-              )}
-            </div>
-            <motion.button
-              onClick={(e) => { e.stopPropagation(); onAdd(); }}
-              className="px-3 py-1.5 text-[11px] font-bold text-white"
-              style={{
-                background: "linear-gradient(135deg, #19B000, #0D8A00)",
-                border: "none",
-                borderRadius: 999,
-                cursor: "pointer",
-                fontFamily: "Montserrat, sans-serif",
-              }}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.92 }}
-            >
-              Ajouter
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
-    </Reveal>
+        <p className="text-[10px] font-bold truncate m-0" style={{ fontFamily: "Montserrat, sans-serif", color: "#fff" }}>
+          {item.name}
+        </p>
+        <p className="text-[9px] m-0" style={{ fontFamily: "Open Sans, sans-serif", color: "#19B000" }}>
+          {formatPrice(getDisplayPrice(item))}
+        </p>
+      </div>
+    </motion.div>
   );
 }
 
-/* ─── Stats counter ─── */
 function StatItem({ value, label, icon: Icon }: { value: string; label: string; icon: React.ElementType }) {
   return (
     <div className="text-center">
       <div className="flex items-center justify-center mb-2">
         <Icon size={20} style={{ color: "#19B000" }} />
       </div>
-      <div
-        className="text-2xl sm:text-3xl font-black mb-1"
-        style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}
-      >
+      <div className="text-2xl sm:text-3xl font-black mb-1" style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
         {value}
       </div>
-      <div
-        className="text-xs"
-        style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}
-      >
+      <div className="text-xs" style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}>
         {label}
       </div>
     </div>
   );
 }
 
-/* ─── Main HomePage ─── */
 interface Props {
   activeCategory: string;
   onCategoryChange: (cat: string) => void;
   onAddToCart: (item: MenuItem) => void;
 }
 
-export function HomePage({ activeCategory, onCategoryChange, onAddToCart }: Props) {
-  const { categories } = useCategories();
-  const { cartCount, cartTotal } = useCart();
+export function HomePage({ onAddToCart }: Props) {
   const { config } = useSiteConfig();
   const [menuItems, setMenuItems] = useState<MenuItem[]>(FALLBACK_ITEMS);
-  const [bookOpen, setBookOpen] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-
-  const displayCategories = categories.filter((c) => c !== "Tous");
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -188,283 +149,224 @@ export function HomePage({ activeCategory, onCategoryChange, onAddToCart }: Prop
     return () => { clearTimeout(timer); controller.abort(); };
   }, []);
 
-  const featuredItems = menuItems.slice(0, 6);
+  const photos = menuItems.slice(0, 8);
 
   return (
-    <div className="relative" style={{ background: "#0A0A0A" }}>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* ═══ GRADIENT BACKGROUND + 3D LAYERS ═══ */}
+      <LuxuryBackground />
+      <div className="absolute inset-0 z-[1] pointer-events-none">
+        <ParticleField3D particleCount={2500} color="#19B000" accentColor="#FFFFFF" />
+      </div>
+      <div className="absolute inset-0 z-[2] pointer-events-none">
+        <FloatingIngredients3D />
+      </div>
+      <div className="absolute inset-0 z-[3] pointer-events-none"
+        style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.3) 100%)" }}
+      />
 
-      {/* ═══════════════════════════════════════════════
-          SECTION 1: FULL-SCREEN VIDEO HERO
-         ═══════════════════════════════════════════════ */}
-      <section className="relative w-full" style={{ height: "100vh", minHeight: 600 }}>
-        {/* Video background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            onLoadedData={() => setVideoLoaded(true)}
-            className="w-full h-full object-cover transition-opacity duration-1000"
-            style={{ opacity: videoLoaded ? 1 : 0 }}
-            poster="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80"
-          >
-            <source src={HERO_VIDEO} type="video/mp4" />
-          </video>
-          {/* Fallback gradient if video doesn't load */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: "linear-gradient(135deg, #0A0A0A 0%, #1A0F0A 30%, #2C1810 60%, #0A0A0A 100%)",
-              opacity: videoLoaded ? 0 : 1,
-              transition: "opacity 1s ease",
-            }}
-          />
-        </div>
-
-        {/* Dark overlay for text readability */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.85) 100%)",
-          }}
-        />
-
-        {/* Green accent glow at bottom */}
-        <div
-          className="absolute bottom-0 left-0 right-0"
-          style={{
-            height: 200,
-            background: "radial-gradient(ellipse at 50% 100%, rgba(25,176,0,0.12) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Hero content */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+      {/* ═══ HERO ═══ */}
+      <section className="relative z-10 flex flex-col items-center justify-center text-center px-4" style={{ minHeight: "100vh" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-3xl mx-auto"
+        >
           <motion.div
+            className="inline-flex items-center gap-2 px-4 py-1.5 mb-6"
+            style={{ background: "rgba(25,176,0,0.12)", border: "1px solid rgba(25,176,0,0.25)", borderRadius: 999 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <Flame size={13} style={{ color: "#19B000" }} />
+            <span className="text-[11px] font-semibold tracking-wider uppercase" style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
+              Grillades Premium
+            </span>
+          </motion.div>
+
+          <motion.h1
+            className="leading-[0.9] mb-4"
+            style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 900, fontSize: "clamp(3rem, 10vw, 7rem)", letterSpacing: "-0.03em" }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-3xl mx-auto"
+            transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            {/* Badge */}
-            <motion.div
-              className="inline-flex items-center gap-2 px-4 py-1.5 mb-6"
-              style={{
-                background: "rgba(25,176,0,0.12)",
-                border: "1px solid rgba(25,176,0,0.25)",
-                borderRadius: 999,
-              }}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-            >
-              <Flame size={13} style={{ color: "#19B000" }} />
-              <span
-                className="text-[11px] font-semibold tracking-wider uppercase"
-                style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}
-              >
-                Grillades Premium
-              </span>
-            </motion.div>
+            <span style={{ color: "#19B000" }}>BETHEL</span>
+            <br />
+            <span style={{ color: "#FFFFFF" }}>GRILL</span>
+          </motion.h1>
 
-            {/* Main title */}
-            <motion.h1
-              className="leading-[0.9] mb-4"
-              style={{
-                fontFamily: "Montserrat, sans-serif",
-                fontWeight: 900,
-                fontSize: "clamp(3rem, 10vw, 7rem)",
-                letterSpacing: "-0.03em",
-              }}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <span style={{ color: "#19B000" }}>BETHEL</span>
-              <br />
-              <span style={{ color: "#FFFFFF" }}>GRILL</span>
-            </motion.h1>
-
-            {/* Ornamental line */}
-            <motion.div
-              className="flex items-center justify-center gap-3 mb-5"
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              <span style={{ width: 50, height: 1, background: "linear-gradient(90deg, transparent, rgba(25,176,0,0.5))", display: "block" }} />
-              <span style={{ width: 6, height: 6, background: "#19B000", display: "block", borderRadius: "50%", opacity: 0.6 }} />
-              <span style={{ width: 50, height: 1, background: "linear-gradient(90deg, rgba(25,176,0,0.5), transparent)", display: "block" }} />
-            </motion.div>
-
-            {/* Tagline */}
-            <motion.p
-              className="text-base sm:text-lg max-w-md mx-auto mb-8 leading-relaxed"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.6)" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              L'excellence du detail, la passion du gout. Des grillades premium qui eveillent vos sens.
-            </motion.p>
-
-            {/* CTA Buttons */}
-            <motion.div
-              className="flex flex-col sm:flex-row items-center justify-center gap-3"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.6 }}
-            >
-              <motion.button
-                onClick={() => setBookOpen(true)}
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold text-white"
-                style={{
-                  background: "linear-gradient(135deg, #19B000, #0D8A00)",
-                  border: "none",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                  fontFamily: "Montserrat, sans-serif",
-                  boxShadow: "0 4px 20px rgba(25,176,0,0.3), 6px 6px 0 rgba(0,0,0,0.3)",
-                }}
-                whileHover={{ scale: 1.04, y: -3, boxShadow: "0 8px 30px rgba(25,176,0,0.4), 8px 8px 0 rgba(0,0,0,0.3)" }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Sparkles size={16} /> Voir le menu <ArrowRight size={16} />
-              </motion.button>
-
-              <motion.a
-                href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold"
-                style={{
-                  background: "transparent",
-                  color: "#FFFFFF",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: 6,
-                  fontFamily: "Montserrat, sans-serif",
-                  textDecoration: "none",
-                  backdropFilter: "blur(4px)",
-                }}
-                whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000", scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <MessageCircle size={16} /> Commander
-              </motion.a>
-            </motion.div>
+          <motion.div
+            className="flex items-center justify-center gap-3 mb-5"
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <span style={{ width: 50, height: 1, background: "linear-gradient(90deg, transparent, rgba(25,176,0,0.5))", display: "block" }} />
+            <span style={{ width: 6, height: 6, background: "#19B000", display: "block", borderRadius: "50%", opacity: 0.6 }} />
+            <span style={{ width: 50, height: 1, background: "linear-gradient(90deg, rgba(25,176,0,0.5), transparent)", display: "block" }} />
           </motion.div>
 
-          {/* Scroll indicator */}
-          <motion.div
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          <motion.p
+            className="text-base sm:text-lg max-w-md mx-auto mb-8 leading-relaxed"
+            style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.6)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 0.6 }}
           >
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center gap-2"
+            L'excellence du detail, la passion du gout.
+          </motion.p>
+
+          <motion.div
+            className="flex flex-col sm:flex-row items-center justify-center gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+          >
+            <motion.a
+              href="#plats"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold text-white"
+              style={{
+                background: "linear-gradient(135deg, #19B000, #0D8A00)",
+                border: "none", borderRadius: 6, cursor: "pointer",
+                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
+                boxShadow: "0 4px 20px rgba(25,176,0,0.3), 6px 6px 0 rgba(0,0,0,0.3)",
+              }}
+              whileHover={{ scale: 1.04, y: -3 }}
+              whileTap={{ scale: 0.97 }}
             >
-              <span
-                className="text-[10px] tracking-[0.3em] uppercase"
-                style={{ fontFamily: "Montserrat, sans-serif", color: "rgba(255,255,255,0.3)" }}
-              >
-                Decouvrir
-              </span>
-              <ChevronDown size={18} style={{ color: "rgba(255,255,255,0.3)" }} />
-            </motion.div>
+              <Sparkles size={16} /> Decouvrir nos plats <ArrowRight size={16} />
+            </motion.a>
+            <motion.a
+              href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold"
+              style={{
+                background: "transparent", color: "#FFFFFF",
+                border: "1px solid rgba(255,255,255,0.2)", borderRadius: 6,
+                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
+              }}
+              whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <MessageCircle size={16} /> Commander
+            </motion.a>
           </motion.div>
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+        >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="flex flex-col items-center gap-2"
+          >
+            <span className="text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: "Montserrat, sans-serif", color: "rgba(255,255,255,0.3)" }}>
+              Decouvrir
+            </span>
+            <ChevronDown size={18} style={{ color: "rgba(255,255,255,0.3)" }} />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ═══ SCATTERED PHOTOS ON TABLE ═══ */}
+      <section id="plats" className="relative z-10 py-16 sm:py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          <Reveal className="text-center mb-16">
+            <span className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3 block"
+              style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000", opacity: 0.7 }}>
+              Nos Plats
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black leading-tight mb-4"
+              style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}>
+              Des saveurs qui <span style={{ color: "#19B000" }}>font rever</span>
+            </h2>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span style={{ width: 40, height: 1, background: "linear-gradient(90deg, transparent, rgba(25,176,0,0.4))", display: "block" }} />
+              <span style={{ width: 6, height: 6, background: "#19B000", display: "block", borderRadius: "50%", opacity: 0.5 }} />
+              <span style={{ width: 40, height: 1, background: "linear-gradient(90deg, rgba(25,176,0,0.4), transparent)", display: "block" }} />
+            </div>
+            <p className="text-sm max-w-md mx-auto" style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}>
+              Cliquez sur une photo pour decouvrir le plat.
+            </p>
+          </Reveal>
+
+          {/* Table surface */}
+          <div
+            className="relative mx-auto"
+            style={{
+              width: "100%",
+              maxWidth: 900,
+              minHeight: 500,
+              padding: "40px 20px",
+            }}
+          >
+            {/* Wood table texture */}
+            <div
+              className="absolute inset-0 rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, #1A0F0A 0%, #2C1810 30%, #1A0F0A 60%, #2C1810 100%)",
+                border: "1px solid rgba(200,164,92,0.1)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5), inset 0 0 80px rgba(0,0,0,0.3)",
+              }}
+            />
+            {/* Wood grain lines */}
+            <div
+              className="absolute inset-0 rounded-xl pointer-events-none"
+              style={{
+                backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(200,164,92,0.03) 40px, rgba(200,164,92,0.03) 41px)",
+                opacity: 0.6,
+              }}
+            />
+
+            {/* Scattered photos */}
+            <div className="relative" style={{ height: 460 }}>
+              {photos.map((item, i) => (
+                <ScatteredPhoto key={item.id} item={item} index={i} onClick={() => setDetailItem(item)} />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          SECTION 2: ABOUT (overlaps hero with negative margin)
-         ═══════════════════════════════════════════════ */}
-      <section
-        className="relative px-4"
-        style={{
-          marginTop: -100,
-          zIndex: 20,
-        }}
-      >
+      {/* ═══ ABOUT ═══ */}
+      <section className="relative z-10 py-20 sm:py-28 px-4">
         <div className="max-w-6xl mx-auto">
           <Reveal>
             <div
               className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 sm:p-12"
               style={{
-                background: "rgba(20,20,20,0.95)",
+                background: "rgba(20,20,20,0.8)",
                 border: "1px solid rgba(255,255,255,0.06)",
                 borderRadius: 12,
                 backdropFilter: "blur(20px)",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(25,176,0,0.05)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
               }}
             >
-              {/* Image side */}
               <div className="relative overflow-hidden rounded-lg" style={{ minHeight: 280 }}>
                 <img
                   src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80"
-                  alt="Bethel Grill restaurant"
-                  className="w-full h-full object-cover"
-                  style={{ minHeight: 280 }}
-                  loading="lazy"
+                  alt="Bethel Grill" className="w-full h-full object-cover" style={{ minHeight: 280 }} loading="lazy"
                 />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(25,176,0,0.15) 0%, transparent 60%)",
-                  }}
-                />
-                {/* Floating stat badge */}
-                <div
-                  className="absolute bottom-4 left-4 px-4 py-3"
-                  style={{
-                    background: "rgba(0,0,0,0.8)",
-                    border: "1px solid rgba(25,176,0,0.3)",
-                    borderRadius: 8,
-                    backdropFilter: "blur(10px)",
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Star size={16} fill="#FFD700" stroke="none" />
-                    <span
-                      className="text-lg font-black"
-                      style={{ fontFamily: "Montserrat, sans-serif", color: "#fff" }}
-                    >
-                      4.9
-                    </span>
-                    <span
-                      className="text-[11px]"
-                      style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.5)" }}
-                    >
-                      / 5.0
-                    </span>
-                  </div>
-                </div>
+                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(25,176,0,0.15) 0%, transparent 60%)" }} />
               </div>
-
-              {/* Text side */}
               <div className="flex flex-col justify-center">
-                <span
-                  className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3"
-                  style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000", opacity: 0.7 }}
-                >
+                <span className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3"
+                  style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000", opacity: 0.7 }}>
                   Notre Histoire
                 </span>
-                <h2
-                  className="text-2xl sm:text-3xl font-black leading-tight mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}
-                >
-                  La passion des{" "}
-                  <span style={{ color: "#19B000" }}>grillades</span>{" "}
-                  depuis toujours
+                <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}>
+                  La passion des <span style={{ color: "#19B000" }}>grillades</span> depuis toujours
                 </h2>
-                <p
-                  className="text-sm leading-relaxed mb-6"
-                  style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.5)" }}
-                >
+                <p className="text-sm leading-relaxed mb-6"
+                  style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.5)" }}>
                   Chez Bethel Grill, chaque plat est une invitation au voyage. Nos grillades sont preparees avec des ingredients frais et des recettes transmises de generation en generation.
                 </p>
                 <div className="grid grid-cols-3 gap-4 mb-6">
@@ -486,315 +388,56 @@ export function HomePage({ activeCategory, onCategoryChange, onAddToCart }: Prop
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          SECTION 3: FEATURED MENU
-         ═══════════════════════════════════════════════ */}
-      <section className="relative py-20 sm:py-28 px-4">
-        {/* Background texture */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(180deg, #0A0A0A 0%, #111 50%, #0A0A0A 100%)",
-          }}
-        />
-
-        <div className="relative max-w-6xl mx-auto">
-          <Reveal className="text-center mb-14">
-            <span
-              className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3 block"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000", opacity: 0.7 }}
-            >
-              Nos Specialites
-            </span>
-            <h2
-              className="text-3xl sm:text-4xl font-black leading-tight mb-4"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}
-            >
-              Des plats qui font{" "}
-              <span style={{ color: "#19B000" }}>rever</span>
-            </h2>
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <span style={{ width: 40, height: 1, background: "linear-gradient(90deg, transparent, rgba(25,176,0,0.4))", display: "block" }} />
-              <span style={{ width: 6, height: 6, background: "#19B000", display: "block", borderRadius: "50%", opacity: 0.5 }} />
-              <span style={{ width: 40, height: 1, background: "linear-gradient(90deg, rgba(25,176,0,0.4), transparent)", display: "block" }} />
-            </div>
-            <p
-              className="text-sm max-w-md mx-auto"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}
-            >
-              Decouvrez notre selection de plats prepares avec passion et savoir-faire.
-            </p>
-          </Reveal>
-
-          {/* Dish grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-            {featuredItems.map((item, i) => (
-              <DishCard
-                key={item.id}
-                item={item}
-                index={i}
-                onAdd={() => onAddToCart(item)}
-              />
-            ))}
-          </div>
-
-          {/* Full menu CTA */}
-          <Reveal className="text-center">
-            <motion.button
-              onClick={() => setBookOpen(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 text-sm font-bold text-white"
+      {/* ═══ CTA ═══ */}
+      <section className="relative z-10 py-20 sm:py-28 px-4 text-center">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(25,176,0,0.08) 0%, transparent 70%)" }} />
+        <Reveal>
+          <span className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block"
+            style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
+            Pret a savourer ?
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black leading-tight mb-6"
+            style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}>
+            Commandez en <span style={{ color: "#19B000" }}>quelques clics</span>
+          </h2>
+          <p className="text-sm sm:text-base max-w-lg mx-auto mb-8 leading-relaxed"
+            style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.5)" }}>
+            Discutez directement avec notre equipe via WhatsApp.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <motion.a
+              href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold text-white"
               style={{
-                background: "linear-gradient(135deg, #19B000, #0D8A00)",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-                fontFamily: "Montserrat, sans-serif",
-                boxShadow: "0 4px 20px rgba(25,176,0,0.25), 6px 6px 0 rgba(0,0,0,0.3)",
+                background: "#25D366", border: "none", borderRadius: 6, cursor: "pointer",
+                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
+                boxShadow: "0 4px 20px rgba(37,211,102,0.3), 6px 6px 0 rgba(0,0,0,0.3)",
               }}
-              whileHover={{ scale: 1.04, y: -3, boxShadow: "0 8px 30px rgba(25,176,0,0.35), 8px 8px 0 rgba(0,0,0,0.3)" }}
+              whileHover={{ scale: 1.04, y: -3 }}
               whileTap={{ scale: 0.97 }}
             >
-              <ChefHat size={16} /> Voir tout le menu <ArrowRight size={16} />
-            </motion.button>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-          SECTION 4: VIDEO CTA BANNER
-         ═══════════════════════════════════════════════ */}
-      <section className="relative w-full overflow-hidden" style={{ height: "60vh", minHeight: 400 }}>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=80"
-        >
-          <source src={CTA_VIDEO} type="video/mp4" />
-        </video>
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.8) 100%)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "radial-gradient(ellipse at 50% 50%, rgba(25,176,0,0.08) 0%, transparent 70%)",
-          }}
-        />
-
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
-          <Reveal>
-            <span
-              className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}
-            >
-              Pret a savourer ?
-            </span>
-            <h2
-              className="text-3xl sm:text-5xl font-black leading-tight mb-6"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}
-            >
-              Commandez en{" "}
-              <span style={{ color: "#19B000" }}>quelques clics</span>
-            </h2>
-            <p
-              className="text-sm sm:text-base max-w-lg mx-auto mb-8 leading-relaxed"
-              style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.5)" }}
-            >
-              Discutez directement avec notre equipe via WhatsApp. Votre commande arrive chaude et fraiche chez vous.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <motion.a
-                href={buildWhatsAppUrl("Bonjour ! Je souhaite commander.", config.whatsapp_number)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold text-white"
-                style={{
-                  background: "#25D366",
-                  border: "none",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                  fontFamily: "Montserrat, sans-serif",
-                  textDecoration: "none",
-                  boxShadow: "0 4px 20px rgba(37,211,102,0.3), 6px 6px 0 rgba(0,0,0,0.3)",
-                }}
-                whileHover={{ scale: 1.04, y: -3 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <MessageCircle size={16} /> WhatsApp
-              </motion.a>
-              <motion.a
-                href="tel:+229000000000"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold"
-                style={{
-                  background: "transparent",
-                  color: "#FFFFFF",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: 6,
-                  fontFamily: "Montserrat, sans-serif",
-                  textDecoration: "none",
-                  backdropFilter: "blur(4px)",
-                }}
-                whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}
-              >
-                <Phone size={16} /> Appeler
-              </motion.a>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-          SECTION 5: MAP / LOCATION
-         ═══════════════════════════════════════════════ */}
-      <section className="relative py-20 px-4" style={{ background: "#0A0A0A" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <Reveal>
-            <span
-              className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-3 block"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000", opacity: 0.7 }}
-            >
-              Nous Trouver
-            </span>
-            <h2
-              className="text-2xl sm:text-3xl font-black leading-tight mb-8"
-              style={{ fontFamily: "Montserrat, sans-serif", color: "#FFFFFF" }}
-            >
-              A <span style={{ color: "#19B000" }}>votre service</span>
-            </h2>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-8"
+              <MessageCircle size={16} /> WhatsApp
+            </motion.a>
+            <motion.a
+              href="tel:+229000000000"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold"
               style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: 12,
+                background: "transparent", color: "#FFFFFF",
+                border: "1px solid rgba(255,255,255,0.2)", borderRadius: 6,
+                fontFamily: "Montserrat, sans-serif", textDecoration: "none",
               }}
+              whileHover={{ borderColor: "rgba(25,176,0,0.5)", color: "#19B000" }}
             >
-              <div className="flex flex-col items-center gap-3">
-                <div
-                  className="w-12 h-12 flex items-center justify-center rounded-full"
-                  style={{ background: "rgba(25,176,0,0.12)", border: "1px solid rgba(25,176,0,0.2)" }}
-                >
-                  <MapPin size={20} style={{ color: "#19B000" }} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold" style={{ fontFamily: "Montserrat, sans-serif", color: "#fff" }}>
-                    Adresse
-                  </p>
-                  <p className="text-xs mt-1" style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}>
-                    Cotonou, Benin
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div
-                  className="w-12 h-12 flex items-center justify-center rounded-full"
-                  style={{ background: "rgba(25,176,0,0.12)", border: "1px solid rgba(25,176,0,0.2)" }}
-                >
-                  <Clock size={20} style={{ color: "#19B000" }} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold" style={{ fontFamily: "Montserrat, sans-serif", color: "#fff" }}>
-                    Horaires
-                  </p>
-                  <p className="text-xs mt-1" style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}>
-                    Lun-Sam: 11h - 22h
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div
-                  className="w-12 h-12 flex items-center justify-center rounded-full"
-                  style={{ background: "rgba(25,176,0,0.12)", border: "1px solid rgba(25,176,0,0.2)" }}
-                >
-                  <Phone size={20} style={{ color: "#19B000" }} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold" style={{ fontFamily: "Montserrat, sans-serif", color: "#fff" }}>
-                    Telephone
-                  </p>
-                  <p className="text-xs mt-1" style={{ fontFamily: "Open Sans, sans-serif", color: "rgba(255,255,255,0.4)" }}>
-                    +229 00 00 00 00
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+              <Phone size={16} /> Appeler
+            </motion.a>
+          </div>
+        </Reveal>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          BOOK MENU MODAL
-         ═══════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {bookOpen && (
-          <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Backdrop */}
-            <motion.div
-              className="absolute inset-0"
-              style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
-              onClick={() => setBookOpen(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            {/* Close button */}
-            <motion.button
-              onClick={() => setBookOpen(false)}
-              className="absolute top-4 right-4 z-[110] flex items-center justify-center w-10 h-10"
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: "50%",
-                cursor: "pointer",
-                color: "#fff",
-              }}
-              whileHover={{ scale: 1.1, background: "rgba(255,255,255,0.2)" }}
-              whileTap={{ scale: 0.9 }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ delay: 0.2 }}
-            >
-              <X size={18} />
-            </motion.button>
-
-            {/* Book content */}
-            <motion.div
-              className="relative z-[105] w-full max-w-5xl mx-4"
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <BookMenu
-                categories={displayCategories}
-                menuItems={menuItems}
-                activeCategory={activeCategory}
-                onCategoryChange={onCategoryChange}
-                onAddToCart={onAddToCart}
-                onClose={() => setBookOpen(false)}
-                cartItemCount={cartCount}
-                cartTotal={cartTotal}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ═══ DETAIL MODAL ═══ */}
+      <PlatDetailModal item={detailItem} onClose={() => setDetailItem(null)} onAdd={onAddToCart} />
     </div>
   );
 }
