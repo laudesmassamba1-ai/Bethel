@@ -8,6 +8,10 @@ import { useSiteConfig } from "../context/SiteConfigContext";
 import { useCategories } from "../context/CategoriesContext";
 import { fetchPlats } from "../utils/api";
 import { formatPrice, getDisplayPrice } from "../utils/constants";
+import { LuxuryBackground } from "../components/3d/LuxuryBackground";
+import { ParticleField3D } from "../components/3d/ParticleField3D";
+import { FloatingIngredients3D } from "../components/3d/FloatingIngredients3D";
+import { LiquidBrandLogo } from "../components/3d/LiquidBrandLogo";
 import { PlatDetailModal } from "../components/menu/PlatDetailModal";
 import type { MenuItem } from "../utils/constants";
 
@@ -34,6 +38,149 @@ const CATEGORY_META: Record<string, { icon: React.ElementType; color: string }> 
   Desserts: { icon: CakeSlice, color: "#19B000" },
   Boissons: { icon: Coffee, color: "#19B000" },
 };
+
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+interface PlatePosition {
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+  zIndex: number;
+}
+
+function computePlatePositions(items: MenuItem[], plateRadius: number): PlatePosition[] {
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  const cardW = Math.max(65, Math.min(105, plateRadius * 0.24));
+  const maxR = plateRadius - cardW * 0.55;
+
+  return items.map((item, i) => {
+    const angle = i * goldenAngle + seededRandom(item.id * 3) * 0.5;
+    const r = Math.sqrt((i + 0.5) / Math.max(items.length, 1)) * maxR * 0.88;
+    return {
+      x: Math.cos(angle) * r,
+      y: Math.sin(angle) * r,
+      rotation: (seededRandom(item.id * 13) - 0.5) * 24,
+      scale: 0.86 + seededRandom(item.id * 17) * 0.28,
+      zIndex: Math.round((r / maxR) * 100) + i,
+    };
+  });
+}
+
+function PlateDecorations({ radius }: { radius: number }) {
+  const items = useMemo(() => {
+    const decorIcons = [Flame, Flame, Beef, Flame, Beef, Flame, Beef, Flame];
+    return Array.from({ length: 8 }, (_, i) => ({
+      angle: (i / 8) * Math.PI * 2,
+      dist: radius - 6,
+      opacity: 0.08 + seededRandom(i * 59) * 0.1,
+      Icon: decorIcons[i % decorIcons.length],
+      rotation: (i / 8) * 360,
+    }));
+  }, [radius]);
+
+  return (
+    <>
+      {items.map((h, i) => (
+        <div
+          key={i}
+          className="absolute pointer-events-none"
+          style={{
+            left: "50%",
+            top: "50%",
+            transform: `translate(calc(-50% + ${Math.cos(h.angle) * h.dist}px), calc(-50% + ${Math.sin(h.angle) * h.dist}px)) rotate(${h.rotation}deg)`,
+            opacity: h.opacity,
+          }}
+        >
+          <h.Icon size={14} strokeWidth={1.5} color="#19B000" />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function PlateCard({
+  item, pos, cardSize, onClick, index,
+}: {
+  item: MenuItem; pos: PlatePosition; cardSize: number; onClick: () => void; index: number;
+}) {
+  const nameSize = Math.max(7, cardSize * 0.09);
+  const priceSize = Math.max(6, cardSize * 0.08);
+  const badgeSize = Math.max(6, cardSize * 0.07);
+
+  return (
+    <motion.div
+      className="absolute cursor-pointer"
+      style={{ width: cardSize, left: "50%", top: "50%", zIndex: pos.zIndex }}
+      initial={{ opacity: 0, scale: 0.2, rotate: pos.rotation * 3, x: 0, y: 0 }}
+      animate={{
+        opacity: 1, scale: pos.scale, rotate: pos.rotation,
+        x: pos.x - cardSize / 2, y: pos.y - cardSize * 0.5,
+      }}
+      exit={{ opacity: 0, scale: 0.3, rotate: pos.rotation * 2 }}
+      transition={{ delay: index * 0.05, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{
+        scale: pos.scale * 1.22, rotate: 0, zIndex: 300,
+        y: pos.y - cardSize * 0.5 - 18,
+        boxShadow: "0 14px 40px rgba(0,0,0,0.15)",
+        transition: { duration: 0.3, ease: "easeOut" },
+      }}
+      whileTap={{ scale: pos.scale * 1.08 }}
+      onClick={onClick}
+    >
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background: "#FFFFFF",
+          border: "2.5px solid #000000",
+          padding: 4,
+          paddingBottom: nameSize * 3,
+          boxShadow: "3px 3px 0 #000000",
+        }}
+      >
+        <img
+          src={item.image} alt={item.name}
+          className="w-full block"
+          style={{ aspectRatio: "1", objectFit: "cover", filter: "saturate(1.15) contrast(1.05)" }}
+          loading="lazy"
+        />
+        {item.badge && (
+          <div className="absolute top-1 left-1 px-1.5 py-px font-bold tracking-wide"
+            style={{
+              background: item.is_promotion ? "#19B000" : "#000000",
+              color: "#FFFFFF", fontFamily: "Montserrat, sans-serif", fontSize: badgeSize,
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}>
+            {item.badge}
+          </div>
+        )}
+        {item.spicy && (
+          <div className="absolute top-1 right-1 flex items-center justify-center"
+            style={{
+              width: badgeSize * 2.4, height: badgeSize * 2.4,
+              background: "#DC2626", borderRadius: "50%",
+            }}>
+            <Flame size={badgeSize * 1.6} color="#fff" strokeWidth={2.5} />
+          </div>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 px-1.5"
+          style={{ paddingBottom: 3, paddingTop: 2, background: "rgba(255,255,255,0.95)" }}>
+          <p className="truncate leading-tight"
+            style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: nameSize, color: "#000000", lineHeight: 1.15 }}>
+            {item.name}
+          </p>
+          <p className="leading-tight"
+            style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 900, fontSize: priceSize, color: "#19B000" }}>
+            {formatPrice(getDisplayPrice(item))}
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function CategoryChip({
   cat, icon: Icon, count, isActive, onClick, delay,
@@ -77,22 +224,34 @@ function CategoryChip({
   );
 }
 
-function MenuSection({ menuItems, onAddToCart, mostOrderedPlatId }: {
+function PlateMenuSection({ menuItems, onAddToCart, mostOrderedPlatId }: {
   menuItems: MenuItem[]; onAddToCart: (item: MenuItem) => void; mostOrderedPlatId: number | null;
 }) {
   const { categories } = useCategories();
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const plateRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
 
-  const filtered = useMemo(() => {
-    let items = activeCategory === "Tous" ? menuItems : menuItems.filter((i) => i.category === activeCategory);
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      items = items.filter((i) => i.name.toLowerCase().includes(term) || i.description.toLowerCase().includes(term));
-    }
-    return items;
-  }, [menuItems, activeCategory, searchTerm]);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const plateRadius = isMobile ? 140 : 280;
+  const plateDiameter = plateRadius * 2;
+  const cardSize = Math.max(48, Math.min(100, plateRadius * 0.28));
+
+  const filtered = useMemo(
+    () => (activeCategory === "Tous" ? menuItems : menuItems.filter((i) => i.category === activeCategory)),
+    [menuItems, activeCategory]
+  );
+
+  const positions = useMemo(() => computePlatePositions(filtered, plateRadius), [filtered, plateRadius]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -102,12 +261,24 @@ function MenuSection({ menuItems, onAddToCart, mostOrderedPlatId }: {
 
   const displayCategories = useMemo(() => categories.filter((c) => c !== "Tous"), [categories]);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!plateRef.current) return;
+    const rect = plateRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    setMousePos({ x, y });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => setMousePos({ x: 0, y: 0 }), []);
+
   return (
     <section id="menu" className="relative py-14 sm:py-20 md:py-28 px-3 sm:px-4 scroll-mt-16" style={{ background: "#FAFAF8" }}>
+      {/* Radial glow */}
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(25,176,0,0.04) 0%, transparent 60%)" }} />
 
       <div className="max-w-5xl mx-auto relative z-10">
+        {/* Header */}
         <motion.div className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -131,6 +302,7 @@ function MenuSection({ menuItems, onAddToCart, mostOrderedPlatId }: {
           </p>
         </motion.div>
 
+        {/* Category chips */}
         <motion.div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-2.5 sm:gap-3 mb-10 sm:mb-14 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
           style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
           initial={{ opacity: 0 }}
@@ -157,101 +329,186 @@ function MenuSection({ menuItems, onAddToCart, mostOrderedPlatId }: {
           })}
         </motion.div>
 
-        <div className="relative mx-auto overflow-hidden"
-          style={{ width: "100%", maxWidth: 560, aspectRatio: "1 / 1" }}>
-          <div className="absolute inset-0 overflow-hidden"
+        {/* Tout voir toggle */}
+        <div className="flex justify-center mb-6">
+          <motion.button
+            onClick={() => setShowGrid(!showGrid)}
+            className="flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase cursor-pointer"
             style={{
-              borderRadius: "50%",
-              background: "radial-gradient(circle at 42% 38%, #FFFFFF 0%, #FAFAFA 55%, #F0F0F0 78%, #E8E8E8 90%, #DDDDDD 100%)",
-              boxShadow: "inset 0 0 50px rgba(0,0,0,0.03), 0 0 0 8px rgba(0,0,0,0.03), 0 0 0 9px rgba(255,255,255,0.9), 0 0 0 12px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.06)",
-            }} />
-          <div className="absolute" style={{ inset: "7%", borderRadius: "50%", border: "1px solid rgba(0,0,0,0.04)" }} />
-          <div className="absolute" style={{ inset: "9%", borderRadius: "50%", border: "0.5px solid rgba(0,0,0,0.02)" }} />
+              fontFamily: "Montserrat, sans-serif",
+              background: showGrid ? "#000000" : "#FFFFFF",
+              color: showGrid ? "#FFFFFF" : "#000000",
+              border: "2.5px solid #000000",
+              borderRadius: 4,
+              boxShadow: "3px 3px 0 #000000",
+            }}
+            whileHover={{ x: -1, y: -1, boxShadow: "5px 5px 0 #000000" }}
+            whileTap={{ x: 1, y: 1, boxShadow: "1px 1px 0 #000000" }}
+          >
+            {showGrid ? (
+              <><UtensilsCrossed size={14} strokeWidth={2.5} /> Voir l'assiette</>
+            ) : (
+              <><Flame size={14} strokeWidth={2.5} /> Tout voir</>
+            )}
+          </motion.button>
+        </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 absolute inset-0 p-8 sm:p-12 overflow-y-auto">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  className="relative cursor-pointer overflow-hidden"
-                  style={{
-                    background: "#FFFFFF",
-                    border: "2.5px solid #000000",
-                    borderRadius: 4,
-                    boxShadow: "3px 3px 0 #000000",
-                  }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: i * 0.04, duration: 0.35 }}
-                  whileHover={{ scale: 1.03, y: -4, boxShadow: "5px 5px 0 #000000" }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setDetailItem(item)}
-                >
-                  <div className="relative">
-                    <img src={item.image} alt={item.name}
-                      className="w-full block"
-                      style={{ aspectRatio: "1", objectFit: "cover", filter: "saturate(1.15) contrast(1.05)" }}
-                      loading="lazy" />
-                    {item.badge && (
-                      <div className="absolute top-1.5 left-1.5 px-2 py-0.5 text-[9px] font-bold tracking-wide"
-                        style={{
-                          background: item.is_promotion ? "#19B000" : "#000000",
-                          color: "#FFFFFF", fontFamily: "Montserrat, sans-serif",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                        }}>
-                        {item.badge}
-                      </div>
-                    )}
-                    {item.spicy && (
-                      <div className="absolute top-1.5 right-1.5 flex items-center justify-center"
-                        style={{ width: 20, height: 20, background: "#DC2626", borderRadius: "50%" }}>
-                        <Flame size={12} color="#fff" strokeWidth={2.5} />
-                      </div>
+        {/* Plate — desktop + mobile when grid is off */}
+        {!showGrid && (
+          <motion.div
+            ref={plateRef}
+            className="relative mx-auto overflow-hidden"
+            style={{
+              width: "100%",
+              maxWidth: plateDiameter + 40,
+              aspectRatio: `1 / 1`,
+              perspective: 1200,
+            }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            initial={{ opacity: 0, scale: 0.88 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{
+                borderRadius: "50%",
+                transform: `perspective(1200px) rotateY(${mousePos.x * 2}deg) rotateX(${-mousePos.y * 2}deg)`,
+                transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
+              }}
+            >
+              <div className="absolute inset-0"
+                style={{
+                  borderRadius: "50%",
+                  background: "radial-gradient(circle at 42% 38%, #FFFFFF 0%, #FAFAFA 55%, #F0F0F0 78%, #E8E8E8 90%, #DDDDDD 100%)",
+                  boxShadow: `
+                    inset 0 0 50px rgba(0,0,0,0.03),
+                    0 0 0 8px rgba(0,0,0,0.03),
+                    0 0 0 9px rgba(255,255,255,0.9),
+                    0 0 0 12px rgba(0,0,0,0.04),
+                    0 20px 60px rgba(0,0,0,0.1),
+                    0 8px 24px rgba(0,0,0,0.06)
+                  `,
+                }} />
+              <div className="absolute" style={{ inset: "7%", borderRadius: "50%", border: "1px solid rgba(0,0,0,0.04)" }} />
+              <div className="absolute" style={{ inset: "9%", borderRadius: "50%", border: "0.5px solid rgba(0,0,0,0.02)" }} />
+              <PlateDecorations radius={plateRadius} />
+              <AnimatePresence mode="popLayout">
+                {filtered.map((item, i) => (
+                  <PlateCard key={item.id} item={item} pos={positions[i]} cardSize={cardSize}
+                    index={i} onClick={() => setDetailItem(item)} />
+                ))}
+              </AnimatePresence>
+              {filtered.length === 0 && (
+                <motion.div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <UtensilsCrossed size={48} strokeWidth={1} color="rgba(0,0,0,0.1)" />
+                  <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "#9B9385" }}>
+                    Aucun plat dans cette categorie
+                  </p>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Mobile grid view — beautiful readable cards */}
+        {showGrid && (
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {filtered.map((item, i) => (
+              <motion.div
+                key={item.id}
+                className="relative cursor-pointer overflow-hidden"
+                style={{
+                  background: "#FFFFFF",
+                  border: "2.5px solid #000000",
+                  borderRadius: 4,
+                  boxShadow: "3px 3px 0 #000000",
+                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04, duration: 0.35 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setDetailItem(item)}
+              >
+                <div className="relative">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full block"
+                    style={{ aspectRatio: "1", objectFit: "cover", filter: "saturate(1.15) contrast(1.05)" }}
+                    loading="lazy"
+                  />
+                  {item.badge && (
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 text-[9px] font-bold tracking-wide"
+                      style={{
+                        background: item.is_promotion ? "#19B000" : "#000000",
+                        color: "#FFFFFF",
+                        fontFamily: "Montserrat, sans-serif",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                      }}>
+                      {item.badge}
+                    </div>
+                  )}
+                  {item.spicy && (
+                    <div className="absolute top-1.5 right-1.5 flex items-center justify-center"
+                      style={{
+                        width: 20, height: 20,
+                        background: "#DC2626", borderRadius: "50%",
+                      }}>
+                      <Flame size={12} color="#fff" strokeWidth={2.5} />
+                    </div>
+                  )}
+                </div>
+                <div className="p-2.5">
+                  <p className="text-xs font-bold leading-tight mb-0.5 truncate"
+                    style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}>
+                    {item.name}
+                  </p>
+                  <p className="text-[10px] leading-tight mb-1.5 line-clamp-2"
+                    style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
+                    {item.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-black"
+                      style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
+                      {formatPrice(getDisplayPrice(item))}
+                    </span>
+                    {item.original_price && (
+                      <span className="text-[9px] line-through"
+                        style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
+                        {formatPrice(item.original_price)}
+                      </span>
                     )}
                   </div>
-                  <div className="p-2.5">
-                    <p className="text-xs font-bold leading-tight mb-0.5 truncate"
-                      style={{ fontFamily: "Montserrat, sans-serif", color: "#000000" }}>
-                      {item.name}
-                    </p>
-                    <p className="text-[10px] leading-tight mb-1.5 line-clamp-2"
-                      style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-black"
-                        style={{ fontFamily: "Montserrat, sans-serif", color: "#19B000" }}>
-                        {formatPrice(getDisplayPrice(item))}
-                      </span>
-                      {item.original_price && (
-                        <span className="text-[9px] line-through"
-                          style={{ fontFamily: "Open Sans, sans-serif", color: "#9B9385" }}>
-                          {formatPrice(item.original_price)}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center mt-1.5">
                     {item.id === mostOrderedPlatId && (
-                      <span className="inline-block mt-1.5 text-[9px] font-bold px-1.5 py-0.5"
+                      <span className="text-[9px] font-bold px-1.5 py-0.5"
                         style={{ fontFamily: "Montserrat, sans-serif", background: "#19B000", color: "#FFFFFF", borderRadius: 2 }}>
                         Le plus commandé !
                       </span>
                     )}
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                </div>
+              </motion.div>
+            ))}
             {filtered.length === 0 && (
-              <div className="col-span-2 sm:col-span-3 lg:col-span-4 flex flex-col items-center justify-center py-16 gap-3">
+              <div className="col-span-2 flex flex-col items-center justify-center py-16 gap-3">
                 <UtensilsCrossed size={48} strokeWidth={1} color="rgba(0,0,0,0.1)" />
                 <p className="text-sm font-semibold" style={{ fontFamily: "Montserrat, sans-serif", color: "#9B9385" }}>
                   Aucun plat dans cette categorie
                 </p>
               </div>
             )}
-          </div>
-        </div>
+          </motion.div>
+        )}
       </div>
 
       <PlatDetailModal item={detailItem} onClose={() => setDetailItem(null)} onAdd={onAddToCart} />
@@ -292,27 +549,25 @@ export function HomePage({ onAddToCart }: Props) {
 
   return (
     <div className="relative overflow-hidden">
+      {/* ═══ HERO ═══ */}
       <section className="relative" style={{ minHeight: "max(550px, 100vh)" }}>
-        <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #1a2e1a 0%, #1D1D1D 50%, #0d1f0d 100%)" }}>
-          <div className="absolute top-20 right-[15%] w-80 h-80 rounded-full blur-3xl" style={{ background: "rgba(25,176,0,0.06)" }} />
-          <div className="absolute bottom-20 left-[10%] w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(212,175,55,0.04)" }} />
-          <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+        <LuxuryBackground />
+        <div className="absolute inset-0 z-[1] pointer-events-none">
+          <ParticleField3D particleCount={1200} color="#19B000" accentColor="#FFFFFF" />
         </div>
-
+        <div className="absolute inset-0 z-[2] pointer-events-none">
+          <FloatingIngredients3D />
+        </div>
         <div className="absolute inset-0 z-[3] pointer-events-none"
-          style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 50%, rgba(0,0,0,0.3) 100%)" }} />
+          style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.4) 100%)" }} />
 
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4">
           <motion.div
-            className="mb-6"
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
-            <div className="w-[min(200px,50vw)] h-[min(80px,20vw)] mx-auto flex items-center justify-center">
-              <img src="/logo.jpg" alt="Bethel Grill"
-                className="h-full w-auto object-contain rounded-xl"
-                style={{ filter: "drop-shadow(0 4px 20px rgba(0,0,0,0.3))" }} />
-            </div>
+            transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="w-[min(300px,65vw)] h-[min(110px,25vw)] mb-6">
+            <LiquidBrandLogo className="w-full h-full" />
           </motion.div>
 
           <motion.h1 className="text-center leading-[0.85] mb-3"
@@ -331,7 +586,7 @@ export function HomePage({ onAddToCart }: Props) {
             L'excellence du detail, la passion du gout.
           </motion.p>
 
-          <motion.div className="flex flex-col sm:flex-row items-center gap-3"
+           <motion.div className="flex flex-col sm:flex-row items-center gap-3"
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0, duration: 0.6 }}>
             <motion.a href="#menu"
@@ -344,6 +599,7 @@ export function HomePage({ onAddToCart }: Props) {
                 fontFamily: "Montserrat, sans-serif",
                 textDecoration: "none",
                 boxShadow: "4px 4px 0 #000000",
+                transition: "box-shadow 0.1s, transform 0.1s",
               }}
               whileHover={{ x: -2, y: -2, boxShadow: "6px 6px 0 #000000" }}
               whileTap={{ x: 2, y: 2, boxShadow: "2px 2px 0 #000000" }}>
@@ -366,7 +622,8 @@ export function HomePage({ onAddToCart }: Props) {
         </motion.div>
       </section>
 
-      <MenuSection menuItems={menuItems} onAddToCart={onAddToCart} mostOrderedPlatId={mostOrderedPlatId} />
+      {/* ═══ PLATE MENU ═══ */}
+      <PlateMenuSection menuItems={menuItems} onAddToCart={onAddToCart} mostOrderedPlatId={mostOrderedPlatId} />
     </div>
   );
 }

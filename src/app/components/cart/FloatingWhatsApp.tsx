@@ -22,15 +22,15 @@ export function FloatingWhatsApp() {
   return (
     <motion.button
       onClick={handleClick}
-      className="fixed bottom-20 sm:bottom-20 right-4 sm:right-6 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 font-bold text-white text-xs sm:text-sm rounded-full"
+      className="fixed bottom-20 sm:bottom-20 right-4 sm:right-6 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 font-black text-white text-xs sm:text-sm"
       style={{
         background: "#25D366",
-        border: "none",
-        boxShadow: "0 8px 24px rgba(37,211,102,0.3)",
-        fontFamily: "Montserrat, sans-serif",
+        border: "3px solid #1D1D1D",
+        boxShadow: "5px 5px 0 #1D1D1D",
+        fontFamily: "Nunito, sans-serif",
         cursor: "pointer",
       }}
-      whileHover={{ scale: 1.05, boxShadow: "0 12px 32px rgba(37,211,102,0.35)" }}
+      whileHover={{ scale: 1.05, boxShadow: "7px 7px 0 #1D1D1D" }}
       whileTap={{ scale: 0.95 }}
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}

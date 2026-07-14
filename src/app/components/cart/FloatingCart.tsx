@@ -16,11 +16,11 @@ export function FloatingCart({ visible, cartOpen, itemCount, total, onOpen }: Pr
       {visible && !cartOpen && (
         <motion.button
           onClick={onOpen}
-          className="fixed bottom-5 left-5 z-30 flex items-center gap-2 px-4 py-3 text-xs font-bold rounded-full"
+          className="fixed bottom-5 left-5 z-30 flex items-center gap-2 px-4 py-3 text-xs font-bold"
           style={{
             background: "linear-gradient(135deg, #19B000, #0D8A00)",
             border: "none",
-            boxShadow: "0 8px 24px rgba(25,176,0,0.2)",
+            boxShadow: "4px 4px 0 rgba(0,0,0,0.25), 0 8px 24px rgba(25,176,0,0.15)",
             cursor: "pointer",
             fontFamily: "Montserrat, sans-serif",
             color: "#FFFFFF",
@@ -29,7 +29,7 @@ export function FloatingCart({ visible, cartOpen, itemCount, total, onOpen }: Pr
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          whileHover={{ scale: 1.05, y: -2, boxShadow: "0 12px 32px rgba(25,176,0,0.25)" }}
+          whileHover={{ scale: 1.05, y: -2, boxShadow: "6px 6px 0 rgba(0,0,0,0.25), 0 12px 32px rgba(25,176,0,0.2)" }}
           whileTap={{ scale: 0.95 }}
         >
           <span className="relative">
