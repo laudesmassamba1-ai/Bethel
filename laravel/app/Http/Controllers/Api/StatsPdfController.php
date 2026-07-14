@@ -108,7 +108,7 @@ class StatsPdfController extends Controller
             'totalOrders', 'totalRevenue', 'ordersToday', 'ordersThisWeek',
             'ordersThisMonth', 'avgOrderValue', 'totalCustomers', 'topPlats',
             'recentOrders', 'chartDays', 'categoryBreakdown', 'barChartSvg',
-            'revenueChartSvg', 'pieSvg', 'now'
+            'revenueChartSvg', 'pieSvg', 'now', 'maxBarOrders', 'maxBarRevenue', 'catColors'
         );
 
         $pdf = Pdf::loadView('pdf.stats-report', $data)
