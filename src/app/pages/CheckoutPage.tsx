@@ -276,7 +276,7 @@ export function CheckoutPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ex: Jean Dupont"
+                  placeholder="Utilisateur non défini"
                   className="w-full px-3 py-2.5 text-sm outline-none"
                   style={{
                     border: "1px solid rgba(0,0,0,0.12)",
