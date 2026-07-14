@@ -60,9 +60,9 @@ function AnimatedRoutes() {
         <Suspense fallback={<PageLoader />}>
           <Routes location={location}>
             <Route path="/" element={<HomePageWrapper />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<AdminPage />} />
+            <Route path="/checkout" element={<RootLayout hideNav hideFooter><CheckoutPage /></RootLayout>} />
+            <Route path="/login" element={<RootLayout hideNav hideFooter><LoginPage /></RootLayout>} />
+            <Route path="/dashboard" element={<RootLayout hideNav hideFooter><AdminPage /></RootLayout>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
